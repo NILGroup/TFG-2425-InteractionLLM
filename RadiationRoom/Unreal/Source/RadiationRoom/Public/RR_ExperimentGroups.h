@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "RR_JsonFileManager.h"
+#include "RR_ExperimentGroups.generated.h"
 
 USTRUCT(BlueprintType)
 struct FExperimentGroupsStruct : public FJsonStruct {
