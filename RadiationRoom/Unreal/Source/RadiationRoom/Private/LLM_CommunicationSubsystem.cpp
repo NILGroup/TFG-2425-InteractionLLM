@@ -15,6 +15,7 @@ ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
+    bPendingResponse = false;
     int32 ret = winSockInitialization();
     bConnectionSuccesful = (ret == 0) ? true : false;
     if (!bConnectionSuccesful) return;
@@ -26,6 +27,26 @@ void ULLM_CommunicationSubsystem::Deinitialize()
 {
     closesocket(llmSocket);
     WSACleanup();
+}
+
+void ULLM_CommunicationSubsystem::ShowLLMResponse()
+{
+    AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this] {
+        uint32_t msg_length;
+        recv(llmSocket, reinterpret_cast<char*>(&msg_length), sizeof(msg_length), 0); // Recibir longitud
+        char* buffer = new char[msg_length + 1];
+        int32 iResult = recv(llmSocket, buffer, msg_length, 0); // Recibir mensaje
+        if (iResult == 0)  //En caso de no haber recibido nada
+        {
+            delete[] buffer;
+        }
+        buffer[msg_length] = '\0';
+        FString llmResponse(buffer);
+        delete[] buffer;
+        bPendingResponse = false;
+        GEngine->AddOnScreenDebugMessage(1, 100, FColor::Green, TEXT("Respuesta:"));
+        GEngine->AddOnScreenDebugMessage(2, 100, FColor::Green, llmResponse);
+        });
 }
 
 int32 ULLM_CommunicationSubsystem::winSockInitialization()
@@ -90,7 +111,7 @@ int32 ULLM_CommunicationSubsystem::socketConnection()
 
 void ULLM_CommunicationSubsystem::SendMessage(FString userMessage)
 {
-    if (!bConnectionSuccesful) return;
+    if (!bConnectionSuccesful || bPendingResponse) return;
     int iResult;
     std::string message = std::string(TCHAR_TO_UTF8(*userMessage));
     uint32_t messageLen = message.length();
@@ -105,27 +126,9 @@ void ULLM_CommunicationSubsystem::SendMessage(FString userMessage)
         bConnectionSuccesful = false;
         return;
     }
-
+    bPendingResponse = true;
     // Recibir respuesta del servidor
-    FString messageResponse = RecieveLLMResponse();
-    GEngine->AddOnScreenDebugMessage(1, 100, FColor::Green, TEXT("Respuesta:"));
-    GEngine->AddOnScreenDebugMessage(2, 100, FColor::Green, messageResponse);
-}
-
-FString ULLM_CommunicationSubsystem::RecieveLLMResponse()
-{
-    uint32_t msg_length;
-    recv(llmSocket, reinterpret_cast<char*>(&msg_length), sizeof(msg_length), 0); // Recibir longitud
-    char* buffer = new char[msg_length + 1];
-    int32 iResult = recv(llmSocket, buffer, msg_length, 0); // Recibir mensaje
-    if (iResult == 0)  //En caso de no haber recibido nada
-    {
-        return FString();
-    }
-    buffer[msg_length] = '\0';
-    FString response(buffer);
-    delete[] buffer;
-    return response;
+    ShowLLMResponse();
 }
 
 

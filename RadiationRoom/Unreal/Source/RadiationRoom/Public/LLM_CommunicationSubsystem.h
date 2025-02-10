@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include <string>
+#include "Async/Async.h"
 //contiene la mayoría de las funciones, estructuras y definiciones de Winsock.
 #include <winsock2.h>
 //contiene definiciones introducidas en el documento anexo de WinSock 2 Protocol-Specific para TCP/IP que incluye funciones y estructuras más recientes que se usan para recuperar direcciones IP.
@@ -27,15 +28,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SendMessage(FString userMessage);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE bool IsPendingResponse() { return bPendingResponse; }
 protected:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	void Deinitialize() override;
 
-	FString RecieveLLMResponse();
-
-	void sendMessage(SOCKET sockfd, const std::string& message);
-	std::string receiveMessage(SOCKET sockfd);
+	void ShowLLMResponse();
 private:
 	int32 winSockInitialization();
 	int32 socketConnection();
@@ -45,4 +46,5 @@ private:
 	WSADATA wsaData;
 	SOCKET llmSocket = INVALID_SOCKET;
 	struct sockaddr_in server_addr;
+	bool bPendingResponse = false;
 };
