@@ -19,6 +19,7 @@
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLLMResponseReceived, const FString&, Response);
 UCLASS()
 class RADIATIONROOM_API ULLM_CommunicationSubsystem : public UGameInstanceSubsystem
 {
@@ -31,6 +32,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool IsPendingResponse() { return bPendingResponse; }
+
+	UPROPERTY(BlueprintAssignable)
+	FOnLLMResponseReceived OnLLMResponseReceived;
+	
 protected:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
 

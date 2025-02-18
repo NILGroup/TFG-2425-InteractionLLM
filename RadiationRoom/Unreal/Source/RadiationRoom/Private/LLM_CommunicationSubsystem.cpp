@@ -41,12 +41,15 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
             delete[] buffer;
         }
         buffer[msg_length] = '\0';
+
         FString llmResponse(buffer);
+        llmResponse.Split("</think>\n\n", nullptr, &llmResponse);
         delete[] buffer;
         bPendingResponse = false;
-        GEngine->AddOnScreenDebugMessage(1, 100, FColor::Green, TEXT("Respuesta:"));
-        GEngine->AddOnScreenDebugMessage(2, 100, FColor::Green, llmResponse);
-        });
+
+        OnLLMResponseReceived.Broadcast(llmResponse);
+
+    });
 }
 
 int32 ULLM_CommunicationSubsystem::winSockInitialization()
