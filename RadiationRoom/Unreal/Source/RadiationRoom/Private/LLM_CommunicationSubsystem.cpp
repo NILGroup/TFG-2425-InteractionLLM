@@ -10,18 +10,31 @@
 
 ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 {
-
+    
 }
 
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     bPendingResponse = false;
+    //FString PythonScriptPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/llmSocket.py"));
+    ////bool res = GEngine->Exec(NULL, *PythonScriptPath);
+    //bool res = GEngine->Exec(NULL, TEXT("py C:/Users/Miguel/Desktop/TFG-2425-InteractionLLM/RadiationRoom/Unreal/Source/RadiationRoom/llmSocket.py"));
+    //if (!res)
+    //{
+    //    GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Error al ejecutar el script de Python."));
+    //}
+    //else
+    //{
+    //    GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("Script de Python ejecutado correctamente."));
+    //}
     int32 ret = winSockInitialization();
     bConnectionSuccesful = (ret == 0) ? true : false;
     if (!bConnectionSuccesful) return;
     ret = socketConnection();
     bConnectionSuccesful = (ret == 0) ? true : false;
 }
+
+
 
 void ULLM_CommunicationSubsystem::Deinitialize()
 {
@@ -39,6 +52,7 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         if (iResult == 0)  //En caso de no haber recibido nada
         {
             delete[] buffer;
+            return; //No se hace broadcast porque no se ha recibido nada.
         }
         buffer[msg_length] = '\0';
 
@@ -46,9 +60,7 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         llmResponse.Split("</think>\n\n", nullptr, &llmResponse);
         delete[] buffer;
         bPendingResponse = false;
-
         OnLLMResponseReceived.Broadcast(llmResponse);
-
     });
 }
 
@@ -94,7 +106,6 @@ int32 ULLM_CommunicationSubsystem::socketConnection()
         return -1;
     }
 
-    // Conexión con el socket de python
     iResult = connect(llmSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
     if (iResult == SOCKET_ERROR) {
         closesocket(llmSocket);
@@ -130,6 +141,8 @@ void ULLM_CommunicationSubsystem::SendMessage(FString userMessage)
         return;
     }
     bPendingResponse = true;
+    GEngine->AddOnScreenDebugMessage(1, 3, FColor::Cyan, TEXT("Send"));
+    OnLLMQuestionSend.Broadcast();
     // Recibir respuesta del servidor
     ShowLLMResponse();
 }
