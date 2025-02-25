@@ -8,6 +8,12 @@
 #define EXIT_MESSAGE "quit_app"
 #define WINSOCK_DEPRECATED_NO_WARNINGS
 
+#ifdef _WIN32
+#define RUN_IN_BACKGROUND_COMMAND "start /B " 
+#else
+#define RUN_IN_BACKGROUND_COMMAND "nohup " //Por si queremos compilar para sistemas Unix
+#endif
+
 ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 {
     
@@ -16,17 +22,12 @@ ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     bPendingResponse = false;
-    //FString PythonScriptPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/llmSocket.py"));
-    ////bool res = GEngine->Exec(NULL, *PythonScriptPath);
-    //bool res = GEngine->Exec(NULL, TEXT("py C:/Users/Miguel/Desktop/TFG-2425-InteractionLLM/RadiationRoom/Unreal/Source/RadiationRoom/llmSocket.py"));
-    //if (!res)
-    //{
-    //    GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Error al ejecutar el script de Python."));
-    //}
-    //else
-    //{
-    //    GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("Script de Python ejecutado correctamente."));
-    //}
+    //No hay feedback si el archivo no existe, y si el comando py estuviera mal escrito o python no existiera, saldría una ventana de error
+    FString PythonScriptPath = TEXT("py ") + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/llmSocket.py"));
+    PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
+    std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
+    system(ScriptAnsi.c_str());
+
     int32 ret = winSockInitialization();
     bConnectionSuccesful = (ret == 0) ? true : false;
     if (!bConnectionSuccesful) return;
