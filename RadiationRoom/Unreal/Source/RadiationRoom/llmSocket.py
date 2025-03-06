@@ -1,18 +1,46 @@
 import ollama
 import socket
 import struct
+import argparse
 
-EXIT_MESSAGE = "quit_app"
-PORT= 8080
-HOST_IP ='127.0.0.1'
-HISTORY_MAX_MEMORY = 5 #Numero máximo de interacciones, una interacción es una prompt del usuario y una respuesta del LLM
-PERFORMANCE_MODE = "Fast" #Este parámetro sería para elegir si queremos que se ejecute un modelo pequeño (y en principio más rápido) o uno más grande con mejor calidad de respuesta
+#EXIT_MESSAGE Mensaje para cerrar el chat
+#PORT Puerto de conexión con el LLM
+#HOST_IP Ip de conexión con el LLM (por defecto loopback)
+#HISTORY_MAX_MEMORY Numero máximo de interacciones, una interacción es una prompt del usuario y una respuesta del LLM
+#PERFORMANCE_MODE  Este parámetro sería para elegir si queremos que se ejecute un modelo pequeño (y en principio más rápido) o uno más grande con mejor calidad de respuesta
 #                   Quality: elige el modelo más grande
 #                   Fast: elige el modelo más pequeño
 #                   Balanced: elige la mediana de los modelos, este es el modo por defecto si el parámetro que se pasa no coincide con nunguno de los valores posibles
-EXECUTION_MODE = "Debug" #La idea de este parámetro es que se pueda alternar entre modos más verbosos o no
+#EXECUTION_MODE La idea de este parámetro es que se pueda alternar entre modos más verbosos o no
 #                   Debug: permite escribir por consola mensajes informativos que persistan durante la sesión
 #                   Release: no muestra mensajes, es la opción por defecto si no se pone ninguna de las dos
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--exit_msg', action='store', dest='exit_msg', default='quit_llm')
+parser.add_argument('--port', action='store', dest='port', default=8080)
+parser.add_argument('--host_ip', action='store', dest='host_ip', default='127.0.0.1')
+parser.add_argument('--hist_max_mem', action='store', dest='hist_max_mem', default=1)
+parser.add_argument('--perf_mode', action='store', dest='perf_mode', default='Fast')
+parser.add_argument('--exe_mode', action='store', dest='exe_mode', default='Debug')
+args = parser.parse_args()
+
+EXIT_MESSAGE = args.exit_msg
+PORT = 8080
+if(args.port.isdigit()):
+    portNum = int(args.port)
+    #Comprobar que está entre los valores de puertos posibles para IPV4, que el puerto esté disponible dentro de estos rangos es cosa del programador
+    if(portNum > 0 and portNum < 65535):
+        PORT = portNum
+HOST_IP = args.host_ip
+HISTORY_MAX_MEMORY = 0
+if(args.hist_max_mem.isdigit()):
+    memNum = int(args.hist_max_mem)
+    if(memNum > 0):
+        HISTORY_MAX_MEMORY = memNum
+PERFORMANCE_MODE = args.perf_mode
+EXECUTION_MODE = args.exe_mode
+
+print("Exit MSG ", EXIT_MESSAGE, " PORT ", PORT, " IP ", HOST_IP, " HISTORY ", HISTORY_MAX_MEMORY, " PERFORMANCE ", PERFORMANCE_MODE, " EXECUTION ", EXECUTION_MODE)
 
 # Listar modelos disponibles
 modelList = ollama.list()

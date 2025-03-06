@@ -2,6 +2,7 @@
 
 
 #include "LLM_CommunicationSubsystem.h"
+#include "LLM_Settings.h"
 
 #define PORT "8080"
 #define HOST "127.0.0.1"
@@ -24,6 +25,8 @@ void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
     bPendingResponse = false;
     //No hay feedback si el archivo no existe, y si el comando py estuviera mal escrito o python no existiera, saldría una ventana de error
     FString PythonScriptPath = TEXT("py ") + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/llmSocket.py"));
+    ULLM_Settings* llmSettings = GetMutableDefault<ULLM_Settings>();
+    PythonScriptPath += llmSettings->GetSettingsCommands();
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
     std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
     system(ScriptAnsi.c_str());
