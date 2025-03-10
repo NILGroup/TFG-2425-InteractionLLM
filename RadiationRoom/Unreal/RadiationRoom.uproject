@@ -1,82 +1,76 @@
 {
-	"FileVersion": 3,
-	"EngineAssociation": "5.2",
-	"Category": "",
-	"Description": "",
-	"Modules": [
-		{
-			"Name": "RadiationRoom",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine"
-			]
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "OpenXRMsftHandInteraction",
-			"Enabled": true,
-			"SupportedTargetPlatforms": [
-				"Win64",
-				"Android",
-				"HoloLens"
-			]
-		},
-		{
-			"Name": "AssetsCleaner",
-			"Enabled": false,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/3caab7c6e81f449296989122c043ae21"
-		},
-		{
-			"Name": "GLTFImporter",
-			"Enabled": true
-		},
-		{
-			"Name": "LiveLinkXR",
-			"Enabled": true,
-			"SupportedTargetPlatforms": [
-				"Win64",
-				"Linux"
-			]
-		},
-		{
-			"Name": "ChaosVehiclesPlugin",
-			"Enabled": true
-		},
-		{
-			"Name": "MassAI",
-			"Enabled": true
-		},
-		{
-			"Name": "MassCrowd",
-			"Enabled": true
-		},
-		{
-			"Name": "MassEntity",
-			"Enabled": true
-		},
-		{
-			"Name": "MassGameplay",
-			"Enabled": true
-		},
-		{
-			"Name": "ElectraPlayer",
-			"Enabled": true
-		},
-		{
-			"Name": "OpenXRViveTracker",
-			"Enabled": true,
-			"SupportedTargetPlatforms": [
-				"Win64",
-				"Linux",
-				"Android"
-			]
-		},
-		{
-			"Name": "TypewriterPlugin",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/5796d04c2eba4cffa4bd7df597220967"
-		}
-	]
+  "FileVersion": 3,
+  "EngineAssociation": "5.2",
+  "Category": "",
+  "Description": "",
+  "Modules": [
+    {
+      "Name": "RadiationRoom",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "SpeechToText",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "OpenXRMsftHandInteraction",
+      "Enabled": true
+    },
+    {
+      "Name": "AssetsCleaner",
+      "Enabled": false
+    },
+    {
+      "Name": "GLTFImporter",
+      "Enabled": true
+    },
+    {
+      "Name": "LiveLinkXR",
+      "Enabled": true
+    },
+    {
+      "Name": "ChaosVehiclesPlugin",
+      "Enabled": true
+    },
+    {
+      "Name": "MassAI",
+      "Enabled": true
+    },
+    {
+      "Name": "MassCrowd",
+      "Enabled": true
+    },
+    {
+      "Name": "MassEntity",
+      "Enabled": true
+    },
+    {
+      "Name": "MassGameplay",
+      "Enabled": true
+    },
+    {
+      "Name": "ElectraPlayer",
+      "Enabled": true
+    },
+    {
+      "Name": "OpenXRViveTracker",
+      "Enabled": true
+    },
+    {
+      "Name": "TypewriterPlugin",
+      "Enabled": true
+    },
+    {
+      "Name": "VisualStudioTools",
+      "Enabled": true
+    }
+  ],
+  "TargetPlatforms": [],
+  "AdditionalRootDirectories": [],
+  "AdditionalPluginDirectories": [],
+  "EpicSampleNameHash": ""
 }

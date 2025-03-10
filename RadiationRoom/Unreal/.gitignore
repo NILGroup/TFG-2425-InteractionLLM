@@ -50,6 +50,7 @@ Binaries/*
 Plugins/*/Binaries/*
 
 !Binaries\Win64\libcrypto-1_1-x64.dll
+!Source/SpeechToText/lib/*
 
 # Builds
 Build/*

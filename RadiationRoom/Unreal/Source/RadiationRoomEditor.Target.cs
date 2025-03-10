@@ -10,6 +10,6 @@ public class RadiationRoomEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
-		ExtraModuleNames.AddRange( new string[] { "RadiationRoom" } );
-	}
+		ExtraModuleNames.AddRange( new string[] { "RadiationRoom", "SpeechToText" } );
+    }
 }

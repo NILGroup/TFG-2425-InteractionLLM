@@ -11,5 +11,6 @@ public class RadiationRoomServerTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
 		ExtraModuleNames.AddRange( new string[] { "RadiationRoom" } );
-	}
+		ExtraModuleNames.AddRange( new string[] { "SpeechToText" } );
+    }
 }
