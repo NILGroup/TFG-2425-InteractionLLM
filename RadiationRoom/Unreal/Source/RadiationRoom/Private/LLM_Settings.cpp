@@ -18,12 +18,14 @@ ULLM_Settings::ULLM_Settings(const FObjectInitializer& obj)
 	LLM_Commands.Add(portCom);
 	FCommand IPCom; IPCom.CommandArgument = "host_ip"; IPCom.CommandValue = "127.0.0.1";
 	LLM_Commands.Add(IPCom);
-	FCommand HistCom; HistCom.CommandArgument = "hist_max_mem"; HistCom.CommandValue = "1";
+	FCommand HistCom; HistCom.CommandArgument = "hist_max_mem"; HistCom.CommandValue = "0";
 	LLM_Commands.Add(HistCom);
 	FCommand PerfCom; PerfCom.CommandArgument = "perf_mode"; PerfCom.CommandValue = "Fast";
 	LLM_Commands.Add(PerfCom);
 	FCommand ExeCom; ExeCom.CommandArgument = "exe_mode"; ExeCom.CommandValue = "Debug";
 	LLM_Commands.Add(ExeCom);
+	FCommand TempCom; TempCom.CommandArgument = "temperature"; TempCom.CommandValue = "75";
+	LLM_Commands.Add(TempCom);
 
 	//https://forums.unrealengine.com/t/how-to-add-custom-settings-in-project-settings/146330/3
 	//Registro de los valores en el apartado de ajustes del proyecto

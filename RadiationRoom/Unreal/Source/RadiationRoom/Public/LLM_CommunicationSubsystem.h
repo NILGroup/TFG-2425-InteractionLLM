@@ -47,6 +47,7 @@ protected:
 
 	void ShowLLMResponse();
 private:
+	int32 SystemCall(FString pythonCommand);
 	int32 winSockInitialization();
 	int32 socketConnection();
 	bool bConnectionSuccesful = false;

@@ -1,12 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "LLM_CommunicationSubsystem.h"
 #include "LLM_Settings.h"
+//#include <Windows.h>
 
 #define PORT "8080"
 #define HOST "127.0.0.1"
-#define EXIT_MESSAGE "quit_app"
 #define WINSOCK_DEPRECATED_NO_WARNINGS
 
 #ifdef _WIN32
@@ -23,13 +23,13 @@ ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     bPendingResponse = false;
-    //No hay feedback si el archivo no existe, y si el comando py estuviera mal escrito o python no existiera, saldría una ventana de error
-    FString PythonScriptPath = TEXT("py ") + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/llmSocket.py"));
-    ULLM_Settings* llmSettings = GetMutableDefault<ULLM_Settings>();
-    PythonScriptPath += llmSettings->GetSettingsCommands();
-    PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
-    std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
-    system(ScriptAnsi.c_str());
+
+    if (SystemCall("py ") != 0) {
+        if (SystemCall("python ") != 0) {
+            GEngine->AddOnScreenDebugMessage(0, 3, FColor::Red, TEXT("ERROR SYS CALL"));
+            return;
+        }
+    }
 
     int32 ret = winSockInitialization();
     bConnectionSuccesful = (ret == 0) ? true : false;
@@ -68,12 +68,24 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
     });
 }
 
+int32 ULLM_CommunicationSubsystem::SystemCall(FString pythonCommand)
+{
+    //No hay feedback si el archivo no existe, y si el comando py estuviera mal escrito o python no existiera, saldrï¿½a una ventana de error
+    FString PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/llmSocket.py"));
+    ULLM_Settings* llmSettings = GetMutableDefault<ULLM_Settings>();
+    PythonScriptPath += llmSettings->GetSettingsCommands();
+    PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
+    std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
+    //return WinExec(ScriptAnsi.c_str(), SW_SHOW);
+    return system(ScriptAnsi.c_str());
+}
+
 int32 ULLM_CommunicationSubsystem::winSockInitialization()
 {
     int32 iResult;
-    // Inicialización de winSock
-    // Se llama a la función WSAStartup para iniciar el uso de WS2_32.dll.
-    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData); //El parámetro MAKEWORD(2,2) realiza una solicitud para la versión 2.2 de Winsock en el sistema
+    // InicializaciÃ³n de winSock
+    // Se llama a la funciÃ³n WSAStartup para iniciar el uso de WS2_32.dll.
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData); //El parÃ¡metro MAKEWORD(2,2) realiza una solicitud para la versiÃ³n 2.2 de Winsock en el sistema
     if (iResult != 0) {
         printf("WSAStartup failed: %d\n", iResult);
         return 1;

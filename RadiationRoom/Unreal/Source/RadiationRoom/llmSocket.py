@@ -14,33 +14,48 @@ import argparse
 #EXECUTION_MODE La idea de este parámetro es que se pueda alternar entre modos más verbosos o no
 #                   Debug: permite escribir por consola mensajes informativos que persistan durante la sesión
 #                   Release: no muestra mensajes, es la opción por defecto si no se pone ninguna de las dos
+#TEMPERATURE Permite ajustar la temperatura del modelo, a menos temperatura el modelo es más coherente y sobre todo, durante la respuesta siempre cogerá la palabra con más probabilidad
+#                   Una temperatura de 0.0 siempre dará las mismas respuestas
+#                   A mayor sea la temperatura más "aleatoria" será la respuesta del LLM, y será más creativo
+#                   El valor mínimo de temperatura es 0, y el parámetro que recibe el script se divide entre 100 para obtener valores decimales
+
+DEFAULT_PORT = 8080
+DEFAULT_HIST_MAX_MEM = 0
+DEFAULT_TEMP = 0.7
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--exit_msg', action='store', dest='exit_msg', default='quit_llm')
-parser.add_argument('--port', action='store', dest='port', default=8080)
+parser.add_argument('--port', action='store', dest='port')
 parser.add_argument('--host_ip', action='store', dest='host_ip', default='127.0.0.1')
-parser.add_argument('--hist_max_mem', action='store', dest='hist_max_mem', default=1)
+parser.add_argument('--hist_max_mem', action='store', dest='hist_max_mem')
 parser.add_argument('--perf_mode', action='store', dest='perf_mode', default='Fast')
 parser.add_argument('--exe_mode', action='store', dest='exe_mode', default='Debug')
+parser.add_argument('--temperature', action='store', dest='temp')
 args = parser.parse_args()
 
 EXIT_MESSAGE = args.exit_msg
-PORT = 8080
-if(args.port.isdigit()):
-    portNum = int(args.port)
+PORT = DEFAULT_PORT
+if((args.port is not None) and args.port.isdigit()):
+    PORT = int(args.port)
     #Comprobar que está entre los valores de puertos posibles para IPV4, que el puerto esté disponible dentro de estos rangos es cosa del programador
-    if(portNum > 0 and portNum < 65535):
-        PORT = portNum
+    if(PORT < 0 and PORT >= 65535):
+        PORT = DEFAULT_PORT
 HOST_IP = args.host_ip
-HISTORY_MAX_MEMORY = 0
-if(args.hist_max_mem.isdigit()):
-    memNum = int(args.hist_max_mem)
-    if(memNum > 0):
-        HISTORY_MAX_MEMORY = memNum
+HISTORY_MAX_MEMORY = DEFAULT_HIST_MAX_MEM
+if((args.hist_max_mem is not None) and  args.hist_max_mem.isdigit()):
+    HISTORY_MAX_MEMORY = int(args.hist_max_mem)
+    if(HISTORY_MAX_MEMORY < 0):
+        HISTORY_MAX_MEMORY = 0
 PERFORMANCE_MODE = args.perf_mode
 EXECUTION_MODE = args.exe_mode
+TEMPERATURE = DEFAULT_TEMP
+if((args.temp is not None) and  args.temp.isdigit()):
+    TEMPERATURE = int(args.temp)/100
+    if(TEMPERATURE < 0):
+        TEMPERATURE = 0
+        
 
-print("Exit MSG ", EXIT_MESSAGE, " PORT ", PORT, " IP ", HOST_IP, " HISTORY ", HISTORY_MAX_MEMORY, " PERFORMANCE ", PERFORMANCE_MODE, " EXECUTION ", EXECUTION_MODE)
+print("Exit MSG ", EXIT_MESSAGE, " PORT ", PORT, " IP ", HOST_IP, " HISTORY ", HISTORY_MAX_MEMORY, " PERFORMANCE ", PERFORMANCE_MODE, " EXECUTION ", EXECUTION_MODE, " TEMPERATURE ", TEMPERATURE)
 
 # Listar modelos disponibles
 modelList = ollama.list()
@@ -76,6 +91,8 @@ def PickModel():
 def OpenPort():
     # Configurar historial para memoria
     history = []
+    if(HISTORY_MAX_MEMORY <= 0): #Añadimos un elemento al historial donde se va a guardar la prompt del usuario en caso de no haber memoria
+         history.append({})
     userMessage = ""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST_IP, PORT))
@@ -95,15 +112,20 @@ def OpenPort():
                 #Parte del LLM
                 try:
                     #El historial es para que el LLM tenga memoria, de momento es la forma que tenemos que funciona
-                    history.append({'role': 'user', 'content': userMessage})
+                    if(HISTORY_MAX_MEMORY > 0):
+                        history.append({'role': 'user', 'content': userMessage})
+                    else:
+                        history[0]={'role': 'user', 'content': userMessage}
                     stream = ollama.chat(
                         model=modelName,
                         messages=history,
                         stream=False,
-                        options={"num_gpu": 1, "gpu_layers": -1}
+                        #format="json",
+                        options={"num_gpu": 1, "gpu_layers": -1, "temperature": TEMPERATURE}
                     )
             
                     response = stream['message']['content']  # Si el modo de chat "stream" está en False, esta es la forma de acceder a la respuesta
+                    Print(response)
                     # Descomentar la sección para usar el modo "stream" a true
                     #for word in stream:
                     #    Print(word.message.content, end='', flush=True)
@@ -112,8 +134,10 @@ def OpenPort():
                     response = bytes(response, 'utf-8')
                     pack = struct.pack("I%ds" % (len(response),), len(response), response)
                     conn.sendall(pack)
-                    history.append({'role': 'assistant', 'content': response})
-                    history = history[-HISTORY_MAX_MEMORY:] #limitar el número de interacciones registradas en el historial
+                    if(HISTORY_MAX_MEMORY > 0):
+                        history.append({'role': 'assistant', 'content': response})
+                        history = history[-HISTORY_MAX_MEMORY*2:] #limitar el número de interacciones registradas en el historial
+                        #Se multiplica por 2 porque cada interacción del historial ocupa 2 posiciones de array: la prompt y la respuesta
                 except ollama.ResponseError as e:
                     Print('\033[31mError:', e.error, '\033[0m')
                     userMessage = EXIT_MESSAGE
