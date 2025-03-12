@@ -120,7 +120,7 @@ def OpenPort():
                         model=modelName,
                         messages=history,
                         stream=False,
-                        #format="json",
+                        format="json",
                         options={"num_gpu": 1, "gpu_layers": -1, "temperature": TEMPERATURE}
                     )
             
