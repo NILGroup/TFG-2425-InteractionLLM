@@ -16,6 +16,16 @@
 
 #include "LLM_CommunicationSubsystem.generated.h"
 
+USTRUCT(BlueprintType, meta = (ShortToolTip = "La estructura guarda la información de una prompt que se encola por prioridad"))
+struct FPromptInformation {
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString promptText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 promptPriority;
+};
 /**
  * 
  */
@@ -29,7 +39,7 @@ public:
 	ULLM_CommunicationSubsystem();
 
 	UFUNCTION(BlueprintCallable)
-	void SendMessage(FString userMessage);
+	void SendMessage(FString userMessage, int32 messagePriority = 1);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE bool IsPendingResponse() { return bPendingResponse; }
@@ -46,6 +56,13 @@ protected:
 	void Deinitialize() override;
 
 	void ShowLLMResponse();
+
+	void QueuePrompt(const FPromptInformation& prompt);
+
+	void SendPrompt(const FString& prompt);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FPromptInformation> promptPQueue;
 private:
 	int32 SystemCall(FString pythonCommand);
 	int32 winSockInitialization();

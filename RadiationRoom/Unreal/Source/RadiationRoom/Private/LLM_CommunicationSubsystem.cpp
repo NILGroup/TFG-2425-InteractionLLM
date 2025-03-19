@@ -17,7 +17,7 @@
 
 ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 {
-    
+
 }
 
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -63,9 +63,46 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         FString llmResponse(buffer);
         llmResponse.Split("</think>\n\n", nullptr, &llmResponse);
         delete[] buffer;
-        bPendingResponse = false;
         OnLLMResponseReceived.Broadcast(llmResponse);
+        if (!promptPQueue.IsEmpty()) {
+            SendPrompt(promptPQueue.Pop().promptText);
+        }
+        else {
+            bPendingResponse = false;
+        }
     });
+}
+
+void ULLM_CommunicationSubsystem::QueuePrompt(const FPromptInformation& prompt)
+{
+    promptPQueue.Emplace(prompt);
+    promptPQueue.Sort([](const FPromptInformation& p1, const FPromptInformation& p2)
+        {
+            return p1.promptPriority >= p2.promptPriority;
+        });
+}
+
+void ULLM_CommunicationSubsystem::SendPrompt(const FString& prompt)
+{
+    int iResult;
+    std::string message = std::string(TCHAR_TO_UTF8(*prompt));
+    uint32_t messageLen = message.length();
+    iResult = send(llmSocket, reinterpret_cast<char*>(&messageLen), sizeof(messageLen), 0); // Enviar longitud
+    if (iResult != SOCKET_ERROR) {
+        iResult = send(llmSocket, message.c_str(), messageLen, 0); // Enviar mensaje
+    }
+    if (iResult == SOCKET_ERROR) {
+        UE_LOG(LogTemp, Error, TEXT("send failed: %d\n"), WSAGetLastError());
+        closesocket(llmSocket);
+        WSACleanup();
+        bConnectionSuccesful = false;
+        return;
+    }
+    bPendingResponse = true;
+    GEngine->AddOnScreenDebugMessage(1, 3, FColor::Cyan, TEXT("Send"));
+    OnLLMQuestionSend.Broadcast();
+    // Recibir respuesta del servidor
+    ShowLLMResponse();
 }
 
 int32 ULLM_CommunicationSubsystem::SystemCall(FString pythonCommand)
@@ -139,28 +176,19 @@ int32 ULLM_CommunicationSubsystem::socketConnection()
     return 0;
 }
 
-void ULLM_CommunicationSubsystem::SendMessage(FString userMessage)
+void ULLM_CommunicationSubsystem::SendMessage(FString userMessage, int32 messagePriority)
 {
-    if (!bConnectionSuccesful || bPendingResponse) return;
-    int iResult;
-    std::string message = std::string(TCHAR_TO_UTF8(*userMessage));
-    uint32_t messageLen = message.length();
-    iResult = send(llmSocket, reinterpret_cast<char*>(&messageLen), sizeof(messageLen), 0); // Enviar longitud
-    if (iResult != SOCKET_ERROR) {
-        iResult = send(llmSocket, message.c_str(), messageLen, 0); // Enviar mensaje
-    }
-    if (iResult == SOCKET_ERROR) {
-        UE_LOG(LogTemp, Error, TEXT("send failed: %d\n"), WSAGetLastError());
-        closesocket(llmSocket);
-        WSACleanup();
-        bConnectionSuccesful = false;
+    if (!bConnectionSuccesful) {
+        UE_LOG(LogTemp, Warning, TEXT("Cant send prompt to LLM because no connection has been created!"));
         return;
     }
-    bPendingResponse = true;
-    GEngine->AddOnScreenDebugMessage(1, 3, FColor::Cyan, TEXT("Send"));
-    OnLLMQuestionSend.Broadcast();
-    // Recibir respuesta del servidor
-    ShowLLMResponse();
+    FPromptInformation prompt; prompt.promptText = userMessage; prompt.promptPriority = messagePriority;
+    if (bPendingResponse) {
+        QueuePrompt(prompt);
+    }
+    else {
+        SendPrompt(prompt.promptText);
+    }
 }
 
 
