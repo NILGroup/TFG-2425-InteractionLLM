@@ -1,72 +1,71 @@
 {
-  "FileVersion": 3,
-  "EngineAssociation": "5.2",
-  "Category": "",
-  "Description": "",
-  "Modules": [
-    {
-      "Name": "RadiationRoom",
-      "Type": "Runtime",
-      "LoadingPhase": "Default"
-    },
-    {
-      "Name": "SpeechToText",
-      "Type": "Runtime",
-      "LoadingPhase": "Default"
-    }
-  ],
-  "Plugins": [
-    {
-      "Name": "OpenXRMsftHandInteraction",
-      "Enabled": true
-    },
-    {
-      "Name": "AssetsCleaner",
-      "Enabled": false
-    },
-    {
-      "Name": "GLTFImporter",
-      "Enabled": true
-    },
-    {
-      "Name": "LiveLinkXR",
-      "Enabled": true
-    },
-    {
-      "Name": "ChaosVehiclesPlugin",
-      "Enabled": true
-    },
-    {
-      "Name": "MassAI",
-      "Enabled": true
-    },
-    {
-      "Name": "MassCrowd",
-      "Enabled": true
-    },
-    {
-      "Name": "MassEntity",
-      "Enabled": true
-    },
-    {
-      "Name": "MassGameplay",
-      "Enabled": true
-    },
-    {
-      "Name": "ElectraPlayer",
-      "Enabled": true
-    },
-    {
-      "Name": "OpenXRViveTracker",
-      "Enabled": true
-    },
-    {
-      "Name": "TypewriterPlugin",
-      "Enabled": true
-    }
-  ],
-  "TargetPlatforms": [],
-  "AdditionalRootDirectories": [],
-  "AdditionalPluginDirectories": [],
-  "EpicSampleNameHash": ""
+	"FileVersion": 3,
+	"EngineAssociation": "5.2",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "RadiationRoom",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"AIModule"
+			]
+		},
+		{
+			"Name": "SpeechToText",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "OpenXRMsftHandInteraction",
+			"Enabled": true
+		},
+		{
+			"Name": "AssetsCleaner",
+			"Enabled": false
+		},
+		{
+			"Name": "GLTFImporter",
+			"Enabled": true
+		},
+		{
+			"Name": "LiveLinkXR",
+			"Enabled": true
+		},
+		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "MassAI",
+			"Enabled": true
+		},
+		{
+			"Name": "MassCrowd",
+			"Enabled": true
+		},
+		{
+			"Name": "MassEntity",
+			"Enabled": true
+		},
+		{
+			"Name": "MassGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "ElectraPlayer",
+			"Enabled": true
+		},
+		{
+			"Name": "OpenXRViveTracker",
+			"Enabled": true
+		},
+		{
+			"Name": "TypewriterPlugin",
+			"Enabled": true
+		}
+	]
 }
