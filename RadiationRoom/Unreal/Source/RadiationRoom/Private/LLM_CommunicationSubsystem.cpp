@@ -1,6 +1,5 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "LLM_CommunicationSubsystem.h"
 #include "LLM_Settings.h"
 //#include <Windows.h>
@@ -26,7 +25,7 @@ void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 
     if (SystemCall("py ") != 0) {
         if (SystemCall("python ") != 0) {
-            GEngine->AddOnScreenDebugMessage(0, 3, FColor::Red, TEXT("ERROR SYS CALL"));
+            GEngine->AddOnScreenDebugMessage(0, 3, FColor::Red, TEXT("ERROR SYS CALL: LLM"));
             return;
         }
     }
@@ -37,8 +36,6 @@ void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
     ret = socketConnection();
     bConnectionSuccesful = (ret == 0) ? true : false;
 }
-
-
 
 void ULLM_CommunicationSubsystem::Deinitialize()
 {

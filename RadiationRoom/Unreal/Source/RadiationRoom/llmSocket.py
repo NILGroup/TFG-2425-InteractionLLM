@@ -133,6 +133,7 @@ def OpenPort():
 
                     response = bytes(response, 'utf-8')
                     pack = struct.pack("I%ds" % (len(response),), len(response), response)
+
                     conn.sendall(pack)
                     if(HISTORY_MAX_MEMORY > 0):
                         history.append({'role': 'assistant', 'content': response})
