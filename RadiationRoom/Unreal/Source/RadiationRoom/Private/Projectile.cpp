@@ -11,6 +11,7 @@ UProjectile::UProjectile()
 	PrimaryComponentTick.bCanEverTick = true;
 	_name = "Projectile";
 	_serializedComponent = "{\"speed\":0.0}";
+	_description = "It should be added only to objects generated when the instigator is one ranged gun, such as a bullet.";
 	// ...
 }
 
@@ -38,10 +39,8 @@ void UProjectile::DeserializeComponent(FString jsonObject)
 	TSharedPtr<FJsonObject> obj;
 	auto reader = TJsonReaderFactory<>::Create(jsonObject);
 	if (FJsonSerializer::Deserialize(reader, obj)) {
-		const TSharedPtr<FJsonObject>* ptr;
-		if (obj->TryGetObjectField("additional_info", ptr)) {
-			double speed = 0.0f;
-			(*ptr)->TryGetNumberField("speed", speed);
+		double speed = 0.0f;
+		if (obj->TryGetNumberField("speed", speed)) {
 			_speed = speed;
 		}
 	}

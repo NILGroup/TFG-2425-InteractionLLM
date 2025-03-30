@@ -11,7 +11,7 @@ UVehicleController::UVehicleController()
 	PrimaryComponentTick.bCanEverTick = true;
 	_name = "VehicleController";
 	_serializedComponent = "{\"color\":0xffff0000}";
-
+	_description = "It should be added only to vehicles that should be controlled by the player.";
 	// ...
 }
 
@@ -39,10 +39,8 @@ void UVehicleController::DeserializeComponent(FString jsonObject)
 	TSharedPtr<FJsonObject> obj;
 	auto reader = TJsonReaderFactory<>::Create(jsonObject);
 	if (FJsonSerializer::Deserialize(reader, obj)) {
-		const TSharedPtr<FJsonObject>* ptr;
-		if (obj->TryGetObjectField("additional_info", ptr)) {
-			uint32 color = 0x00000000;
-			(*ptr)->TryGetNumberField("color", color);
+		uint32 color = 0x00000000;
+		if (obj->TryGetNumberField("color", color)) {
 			_color = color;
 		}
 	}
