@@ -21,6 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 	FString _serializedComponent;
 	FString _name;
+	FString _description;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -30,4 +31,6 @@ public:
 	virtual void DeserializeComponent(FString jsonObject) {};
 	UFUNCTION(BlueprintCallable)
 	FString GetName();
+	UFUNCTION(BlueprintCallable)
+	FString GetDescription();
 };

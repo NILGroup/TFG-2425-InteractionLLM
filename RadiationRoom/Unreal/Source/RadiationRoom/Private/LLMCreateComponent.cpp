@@ -42,3 +42,8 @@ FString ULLMCreateComponent::GetName()
 	return _name;
 }
 
+FString ULLMCreateComponent::GetDescription()
+{
+	return _description;
+}
+
