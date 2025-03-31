@@ -87,8 +87,9 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
                     {
                         buffer[msg_length] = '\0';
                         FString res = FString(buffer);
-                        if (res == FString("1234code") && _transcription != FString()) {
-                            GetWorld()->GetGameInstance()->GetSubsystem<ULLM_CommunicationSubsystem>()->SendMessageW(_transcription, 1);
+                        if (res == FString("1234code")) {
+                            // GetWorld()->GetGameInstance()->GetSubsystem<ULLM_CommunicationSubsystem>()->SendMessageW(_transcription, 1);
+                            OnTranscriptionEnded.Broadcast(_transcription);
                             _transcription = FString();
                         }
                         else {

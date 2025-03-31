@@ -20,6 +20,7 @@
  */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTranscriptionRecieved, const FString&, Response);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTranscriptionEnded, const FString&, Response);
 UCLASS()
 class RADIATIONROOM_API USTT_CommunicationSubsystem : public UTickableWorldSubsystem
 {
@@ -29,6 +30,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTranscriptionRecieved OnTranscriptionRecieved;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnTranscriptionEnded OnTranscriptionEnded;
 	
 	virtual void Tick(float DeltaTime) override;
 

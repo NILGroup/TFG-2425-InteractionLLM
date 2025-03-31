@@ -44,7 +44,6 @@ def OpenPort():
         data = audio.get_raw_data()
         data_queue.put(data)
 
-
     # Create a background thread that will pass us raw audio bytes.
     # We could do this manually but SpeechRecognizer provides a nice helper.
     recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
@@ -107,8 +106,9 @@ def OpenPort():
                     # # Clear the console to reprint the updated transcription.
                     os.system('cls' if os.name=='nt' else 'clear')
                     for line in transcription:
-                        print(line)
-                        response = response + bytes(line, 'utf-8')
+                        if line != '':
+                            print(line)
+                            response = response + bytes(line, 'utf-8')
 
                     # # Flush stdout.
                     print('', end='', flush=True)
@@ -122,6 +122,7 @@ def OpenPort():
                     for line in transcription:
                         if line != '': 
                             message_has_content = True
+                            print("Message has content", transcription)
                             break
                     
                     if message_has_content:
