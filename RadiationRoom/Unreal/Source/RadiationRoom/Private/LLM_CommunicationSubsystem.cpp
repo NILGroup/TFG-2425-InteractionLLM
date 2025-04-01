@@ -2,7 +2,6 @@
 
 #include "LLM_CommunicationSubsystem.h"
 #include "LLM_Settings.h"
-//#include <Windows.h>
 
 #define PORT "8080"
 #define HOST "127.0.0.1"

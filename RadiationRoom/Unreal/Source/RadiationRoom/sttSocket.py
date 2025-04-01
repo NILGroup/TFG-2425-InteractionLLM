@@ -7,6 +7,8 @@ import whisper
 import torch
 from datetime import datetime, timedelta, timezone
 from queue import Queue
+import asyncio
+import pyaudio
 
 DEFAULT_PORT = 7070
 
@@ -16,41 +18,6 @@ HOST_IP = "127.0.0.1"
 # The last time a recording was retrieved from the queue.
 
 def OpenPort():
-
-    audio_model = whisper.load_model("base.en")
-    phrase_timeout = 3 #args.phrase_timeout
-    record_timeout = 3
-
-    # Thread safe Queue for passing data from the threaded recording callback.
-    data_queue = Queue()
-
-    # We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
-    recorder = sr.Recognizer()
-    recorder.energy_threshold = 1000 # args.energy_threshold
-    # Definitely do this, dynamic energy compensation lowers the energy threshold dramatically to a point where the SpeechRecognizer never stops recording.
-    recorder.dynamic_energy_threshold = False
-
-    source = sr.Microphone(sample_rate=16000)
-
-    with source:
-        recorder.adjust_for_ambient_noise(source)
-
-    def record_callback(_, audio:sr.AudioData) -> None:
-        """
-        Threaded callback function to receive audio data when recordings finish.
-        audio: An AudioData containing the recorded bytes.
-        """
-        # Grab the raw bytes and push it into the thread safe queue.
-        data = audio.get_raw_data()
-        data_queue.put(data)
-
-    # Create a background thread that will pass us raw audio bytes.
-    # We could do this manually but SpeechRecognizer provides a nice helper.
-    recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
-
-    # Cue the user that we're ready to go.
-    print("Model loaded.\n")
-
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST_IP, PORT))
         s.listen()
@@ -62,15 +29,79 @@ def OpenPort():
             print('Connected by', addr)
             print('', end='', flush=True)
             
-            transcription = ['']
+            # def handle_messages():
+            #     while True:
+            #         data = conn.recv(5).decode('utf-8')
+            #         if data == "STOP":
+            #             record_voice = False
+            #         elif data == "START":
+            #             record_voice = True
+            #             data_queue.queue.clear()
+            #         elif data == "EXIT":
+            #            exit_flag = True 
+            
+            # thread = threading.Thread(target=handle_messages, daemon=True).start()
 
+            # def server_loop():
+            transcription = ['']
             phrase_time = datetime.now(timezone.utc)
+
+            # load model
+            audio_model = whisper.load_model("base.en")
+            phrase_timeout = 3 #args.phrase_timeout
+            record_timeout = 3
+
+            # Thread safe Queue for passing data from the threaded recording callback.
+            data_queue = Queue()
+
+            # We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
+            recorder = sr.Recognizer()
+            recorder.energy_threshold = 1000 # args.energy_threshold
+            # Definitely do this, dynamic energy compensation lowers the energy threshold dramatically to a point where the SpeechRecognizer never stops recording.
+            recorder.dynamic_energy_threshold = False
+
+            pa = pyaudio.PyAudio()
+
+            num_microphones = 0
+            for i in range (pa.get_device_count()):
+                device_info = pa.get_device_info_by_index(i)
+                if device_info['maxInputChannels'] != 0 and device_info['hostApi'] == 0:
+                    num_microphones += 1
+
+            if num_microphones < 1:
+                print("ERROR: No microphones were found. Closing socket connection.")
+                s.close()
+                return None
+            
+            pa.terminate()
+
+            source = sr.Microphone(sample_rate=16000)
+            if source.device_index == None:
+                print("Using default microphone designated by OS")
+                
+            with source:
+                recorder.adjust_for_ambient_noise(source)
+
+            def record_callback(_, audio:sr.AudioData) -> None:
+                """
+                Threaded callback function to receive audio data when recordings finish.
+                audio: An AudioData containing the recorded bytes.
+                """
+                # Grab the raw bytes and push it into the thread safe queue.
+                data = audio.get_raw_data()
+                data_queue.put(data)
+
+            # Create a background thread that will pass us raw audio bytes.
+            # We could do this manually but SpeechRecognizer provides a nice helper.
+            recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
+
+            # Cue the user that we're ready to go.
+            print("Model loaded.\n")
 
             while True:
                 now = datetime.now(timezone.utc)
-
                 # Pull raw recorded audio from the queue.
-                if not data_queue.empty():
+                if not data_queue.empty(): # and record_voice:
                     # phrase_complete = False
                     
                     # If enough time has passed between recordings, consider the phrase complete.
@@ -134,5 +165,9 @@ def OpenPort():
                     
                     transcription = []
                     phrase_time = now
+            
+            # asyncio.gather(server_loop, handle_messages)
 
 OpenPort()
+
+print("Ended!!")
