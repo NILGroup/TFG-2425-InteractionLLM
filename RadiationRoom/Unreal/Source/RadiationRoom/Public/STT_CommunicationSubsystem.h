@@ -34,6 +34,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnTranscriptionEnded OnTranscriptionEnded;
 	
+	UFUNCTION(BlueprintCallable)
+	void SendMessageToSocket(FString message);
+
 	virtual void Tick(float DeltaTime) override;
 
 protected:

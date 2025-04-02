@@ -16,9 +16,19 @@ USTT_CommunicationSubsystem::USTT_CommunicationSubsystem()
 
 }
 
+void USTT_CommunicationSubsystem::SendMessageToSocket(FString message)
+{
+    FTCHARToUTF8 utf_message(*message);
+    int bytesSent = send(STTsocket, utf_message.Get(),message.Len(), 0);
+    if (bytesSent != message.Len()) {
+        UE_LOG(LogTemp, Error, TEXT("ERROR SENDING PYTHON INPUT"));
+        return;
+    }
+}
+
 void USTT_CommunicationSubsystem::Tick(float DeltaTime)
 {
-    if (_transcriptionRecieved) {
+    if (_transcriptionRecieved && bConnectionSuccesful) {
         _transcriptionRecieved = false;
         OnTranscriptionRecieved.Broadcast(_transcription);
     }
@@ -87,10 +97,14 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
                     {
                         buffer[msg_length] = '\0';
                         FString res = FString(buffer);
-                        if (res == FString("1234code")) {
+                        if (res == FString("_send_message_")) {
                             // GetWorld()->GetGameInstance()->GetSubsystem<ULLM_CommunicationSubsystem>()->SendMessageW(_transcription, 1);
                             OnTranscriptionEnded.Broadcast(_transcription);
                             _transcription = FString();
+                        }
+                        if (res == FString("_socket_down_")) {
+                            bConnectionSuccesful = false;
+                            break;
                         }
                         else {
                             _transcription = FString(buffer);
