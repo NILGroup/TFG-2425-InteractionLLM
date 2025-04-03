@@ -18,8 +18,19 @@ ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 
 }
 
+void ULLM_CommunicationSubsystem::Tick(float DeltaTime)
+{
+    if (_responseReceived) {
+        OnLLMResponseReceived.Broadcast(_llmResponse);
+        _responseReceived = false;
+        _llmResponse = FString();
+    }
+}
+
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
+    Super::Initialize(Collection);
+
     bPendingResponse = false;
 
     if (SystemCall("py ") != 0) {
@@ -56,10 +67,10 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         }
         buffer[msg_length] = '\0';
 
-        FString llmResponse(buffer);
-        llmResponse.Split("</think>\n\n", nullptr, &llmResponse);
+        _llmResponse = FString(buffer);
+        _llmResponse.Split("</think>\n\n", nullptr, &_llmResponse);
         delete[] buffer;
-        OnLLMResponseReceived.Broadcast(llmResponse);
+        _responseReceived = true;
         if (!promptPQueue.IsEmpty()) {
             SendPrompt(promptPQueue.Pop().promptText);
         }
@@ -170,6 +181,11 @@ int32 ULLM_CommunicationSubsystem::socketConnection()
         return -1;
     }
     return 0;
+}
+
+TStatId ULLM_CommunicationSubsystem::GetStatId() const
+{
+    RETURN_QUICK_DECLARE_CYCLE_STAT(YouClassName, STATGROUP_Tickables);
 }
 
 void ULLM_CommunicationSubsystem::SendMessage(FString userMessage, int32 messagePriority)

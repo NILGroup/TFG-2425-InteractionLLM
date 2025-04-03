@@ -32,7 +32,7 @@ struct FPromptInformation {
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLLMResponseReceivedDelegate, const FString&, Response);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLLMQuestionSendDelegate);
 UCLASS()
-class RADIATIONROOM_API ULLM_CommunicationSubsystem : public UGameInstanceSubsystem
+class RADIATIONROOM_API ULLM_CommunicationSubsystem : public UTickableWorldSubsystem
 {
 	GENERATED_BODY()
 public:
@@ -49,6 +49,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnLLMQuestionSendDelegate OnLLMQuestionSend;
+
+	virtual void Tick(float DeltaTime) override;
 	
 protected:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -69,9 +71,13 @@ private:
 	int32 socketConnection();
 	bool bConnectionSuccesful = false;
 
+	TStatId GetStatId() const override;
+
 	// Necesario para poder inicializar el uso del archivo DLL de Windows Sockets
 	WSADATA wsaData;
 	SOCKET llmSocket = INVALID_SOCKET;
 	struct sockaddr_in server_addr;
 	bool bPendingResponse = false;
+	bool _responseReceived = false;
+	FString _llmResponse;
 };
