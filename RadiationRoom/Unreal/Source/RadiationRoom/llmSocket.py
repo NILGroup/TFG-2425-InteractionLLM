@@ -21,7 +21,7 @@ import argparse
 
 DEFAULT_PORT = 8080
 DEFAULT_HIST_MAX_MEM = 0
-DEFAULT_TEMP = 0.7
+DEFAULT_TEMP = 0.2
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--exit_msg', action='store', dest='exit_msg', default='quit_llm')
