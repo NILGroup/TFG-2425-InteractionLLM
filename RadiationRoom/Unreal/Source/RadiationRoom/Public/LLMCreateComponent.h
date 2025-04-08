@@ -7,8 +7,8 @@
 #include "LLMCreateComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class RADIATIONROOM_API ULLMCreateComponent : public UChildActorComponent
+UCLASS(Blueprintable)
+class RADIATIONROOM_API ULLMCreateComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -19,8 +19,11 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString _serializedComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString _name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString _description;
 public:	
 	// Called every frame
