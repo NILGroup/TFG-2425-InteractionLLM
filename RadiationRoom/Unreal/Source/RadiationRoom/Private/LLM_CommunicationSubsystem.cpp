@@ -107,8 +107,17 @@ void ULLM_CommunicationSubsystem::SendPrompt(const FString& prompt)
 
 int32 ULLM_CommunicationSubsystem::SystemCall(FString pythonCommand)
 {
-    //No hay feedback si el archivo no existe, y si el comando py estuviera mal escrito o python no existiera, saldr�a una ventana de error
-    FString PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/") + FApp::GetProjectName() + TEXT("/llmSocket.py"));
+    FString PythonScriptPath;
+#if WITH_EDITOR
+    PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/") + FApp::GetProjectName() + TEXT("/llmSocket.py"));
+#else
+    //Búsqueda del script en la raíz del ejecutable
+    FString dir = FPaths::ProjectDir();
+    dir = dir.Left(dir.Len() - 1);
+    int32 ret = dir.Find(FString("/"), ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+    dir = dir.Left(ret + 1);
+    PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(dir + TEXT("/llmSocket.py"));
+#endif
     ULLM_Settings* llmSettings = GetMutableDefault<ULLM_Settings>();
     PythonScriptPath += llmSettings->GetSettingsCommands();
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
