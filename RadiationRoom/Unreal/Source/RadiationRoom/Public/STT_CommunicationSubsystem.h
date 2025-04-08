@@ -22,7 +22,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTranscriptionRecieved, const FString&, Response);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTranscriptionEnded, const FString&, Response);
 UCLASS()
-class RADIATIONROOM_API USTT_CommunicationSubsystem : public UTickableWorldSubsystem
+class RADIATIONROOM_API USTT_CommunicationSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 public:
@@ -37,7 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SendMessageToSocket(FString message);
 
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 protected:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -53,9 +53,9 @@ private:
 	int32 socketConnection();
 	bool bConnectionSuccesful = false;
 	
-	TStatId GetStatId() const override;
+	//TStatId GetStatId() const override;
 
-	bool _transcriptionRecieved = false;
+	//bool _transcriptionRecieved = false;
 	FString _transcription = "";
 
 	// Necesario para poder inicializar el uso del archivo DLL de Windows Sockets

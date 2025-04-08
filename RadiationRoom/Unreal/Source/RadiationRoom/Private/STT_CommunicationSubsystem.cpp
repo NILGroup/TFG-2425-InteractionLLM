@@ -26,13 +26,13 @@ void USTT_CommunicationSubsystem::SendMessageToSocket(FString message)
     }
 }
 
-void USTT_CommunicationSubsystem::Tick(float DeltaTime)
+/*void USTT_CommunicationSubsystem::Tick(float DeltaTime)
 {
     if (_transcriptionRecieved && bConnectionSuccesful) {
         _transcriptionRecieved = false;
         OnTranscriptionRecieved.Broadcast(_transcription);
     }
-}
+}*/
 
 void USTT_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
     Super::Initialize(Collection);
@@ -108,7 +108,8 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
                         }
                         else {
                             _transcription = FString(buffer);
-                            _transcriptionRecieved = true;
+                            OnTranscriptionRecieved.Broadcast(_transcription);
+                            //_transcriptionRecieved = true;
                         }
                         
                     }
@@ -125,8 +126,7 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
 int32 USTT_CommunicationSubsystem::SystemCall(FString pythonCommand)
 {
     //No hay feedback si el archivo no existe, y si el comando py estuviera mal escrito o python no existiera, saldr�a una ventana de error
-    FString PythonScriptPath = pythonCommand + 
-        FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/sttSocket.py"));
+    FString PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/") + FApp::GetProjectName() + TEXT("/sttSocket.py"));
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
     std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
     return system(ScriptAnsi.c_str());
@@ -191,7 +191,7 @@ int32 USTT_CommunicationSubsystem::socketConnection()
     return 0;
 }
 
-TStatId USTT_CommunicationSubsystem::GetStatId() const
+/*TStatId USTT_CommunicationSubsystem::GetStatId() const
 {
     RETURN_QUICK_DECLARE_CYCLE_STAT(YouClassName, STATGROUP_Tickables);
-}
+}*/

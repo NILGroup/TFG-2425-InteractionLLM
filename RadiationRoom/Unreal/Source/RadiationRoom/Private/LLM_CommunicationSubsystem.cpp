@@ -13,18 +13,11 @@
 #define RUN_IN_BACKGROUND_COMMAND "nohup " //Por si queremos compilar para sistemas Unix
 #endif
 
+#include "Misc/App.h"
+
 ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
 {
 
-}
-
-void ULLM_CommunicationSubsystem::Tick(float DeltaTime)
-{
-    if (_responseReceived) {
-        OnLLMResponseReceived.Broadcast(_llmResponse);
-        _responseReceived = false;
-        _llmResponse = FString();
-    }
 }
 
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -70,7 +63,7 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         _llmResponse = FString(buffer);
         _llmResponse.Split("</think>\n\n", nullptr, &_llmResponse);
         delete[] buffer;
-        _responseReceived = true;
+        OnLLMResponseReceived.Broadcast(_llmResponse);
         if (!promptPQueue.IsEmpty()) {
             SendPrompt(promptPQueue.Pop().promptText);
         }
@@ -115,7 +108,7 @@ void ULLM_CommunicationSubsystem::SendPrompt(const FString& prompt)
 int32 ULLM_CommunicationSubsystem::SystemCall(FString pythonCommand)
 {
     //No hay feedback si el archivo no existe, y si el comando py estuviera mal escrito o python no existiera, saldr�a una ventana de error
-    FString PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/RadiationRoom/llmSocket.py"));
+    FString PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/") + FApp::GetProjectName() + TEXT("/llmSocket.py"));
     ULLM_Settings* llmSettings = GetMutableDefault<ULLM_Settings>();
     PythonScriptPath += llmSettings->GetSettingsCommands();
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
@@ -181,11 +174,6 @@ int32 ULLM_CommunicationSubsystem::socketConnection()
         return -1;
     }
     return 0;
-}
-
-TStatId ULLM_CommunicationSubsystem::GetStatId() const
-{
-    RETURN_QUICK_DECLARE_CYCLE_STAT(YouClassName, STATGROUP_Tickables);
 }
 
 void ULLM_CommunicationSubsystem::SendMessage(FString userMessage, int32 messagePriority)
