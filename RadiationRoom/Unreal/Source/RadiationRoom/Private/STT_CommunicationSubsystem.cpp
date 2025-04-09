@@ -2,7 +2,7 @@
 
 #include "STT_CommunicationSubsystem.h"
 #include "LLM_CommunicationSubsystem.h"
-#include "GenericPlatform/GenericPlatformMisc.h"
+#include "GenericPlatform/GenericPlatformProcess.h"
 #undef GetEnvironmentVariable
 #include <string>
 
@@ -139,6 +139,7 @@ int32 USTT_CommunicationSubsystem::SystemCall(FString pythonCommand)
 #endif
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
     std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
+    
     return system(ScriptAnsi.c_str());
 }
 

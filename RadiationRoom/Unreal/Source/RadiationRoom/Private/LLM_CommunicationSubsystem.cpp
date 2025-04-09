@@ -118,11 +118,12 @@ int32 ULLM_CommunicationSubsystem::SystemCall(FString pythonCommand)
     dir = dir.Left(ret + 1);
     PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(dir + TEXT("/llmSocket.py"));
 #endif
-    ULLM_Settings* llmSettings = GetMutableDefault<ULLM_Settings>();
+    const ULLM_Settings* llmSettings = GetDefault<ULLM_Settings>();
     PythonScriptPath += llmSettings->GetSettingsCommands();
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
     std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
     //return WinExec(ScriptAnsi.c_str(), SW_SHOW);
+    
     return system(ScriptAnsi.c_str());
 }
 

@@ -3,69 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "Engine/DeveloperSettings.h"
 #include "LLM_Settings.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType, Blueprintable)
 struct FCommand
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Config, EditAnywhere)
 	FString CommandArgument = TEXT("");
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Config, EditAnywhere)
 	FString CommandValue = TEXT("");
 };
 
-UCLASS(config = LLMSettings)
-class RADIATIONROOM_API ULLM_Settings : public UObject
+UCLASS(config = Game, defaultconfig, meta = (DisplayName = "LLM Settings"))
+class RADIATIONROOM_API ULLM_Settings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
 public:
-	ULLM_Settings(const FObjectInitializer& obj);
+	ULLM_Settings();
 
-	const FString GetSettingsCommands();
-protected:
-	UPROPERTY(Config, EditAnywhere, Category = "Commands")
+	UPROPERTY(Config, EditAnywhere, Category = "Commands", BlueprintReadOnly)
 	TArray<FCommand> LLM_Commands;
 
-	//Estas variables son los argumentos que se pasan antes de cada valor
-	/*UPROPERTY(Config, EditAnywhere, Category = "Settings|Arguments")
-	FString ExitCommandArg = TEXT("exit_msg");
+	UFUNCTION(BlueprintCallable)
+	const FString GetSettingsCommands() const;
 
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Arguments")
-	FString HostPortArg = TEXT("port");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Arguments")
-	FString HostIPArg = TEXT("host_ip");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Arguments")
-	FString HistoryMaxMemoryArg = TEXT("hist_max_mem");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Arguments")
-	FString PerformanceModeArg = TEXT("perf_mode");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Arguments")
-	FString ExecutionModeArg = TEXT("exe_mode");
-
-	//Estos son los valores de cada argumento
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Values")
-	FString ExitCommand = TEXT("LLM_Quit");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Values", meta = (ClampMin = "0"))
-	int32 HostPort = 8080;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Values")
-	FString HostIP = TEXT("127.0.0.1");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Values", meta = (ClampMin = "0"))
-	int32 HistoryMaxMemory = 0;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Values")
-	FString PerformanceMode = TEXT("Fast");
-
-	UPROPERTY(Config, EditAnywhere, Category = "Settings|Values")
-	FString ExecutionMode = TEXT("Release");*/
+	UFUNCTION(BlueprintCallable)
+	static const ULLM_Settings* GetLLM_Settings();
 };
