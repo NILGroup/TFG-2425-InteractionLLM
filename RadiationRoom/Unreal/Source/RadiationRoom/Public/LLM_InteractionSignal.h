@@ -7,6 +7,15 @@
 #include "Engine/World.h"
 #include "LLM_InteractionSignal.generated.h"
 
+USTRUCT(BlueprintType, Blueprintable)
+struct FSignalAnswer {
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString prompt;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<AActor*> affectedActors;
+};
 /**
  * 
  */
@@ -25,7 +34,7 @@ public:
 	bool ExecuteSignal();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Functions")
-	FString GetSignalPrompt();
+	FSignalAnswer GetSignalPrompt();
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (AllowPrivateAccess = "true"))
