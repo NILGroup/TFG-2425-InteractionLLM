@@ -1,0 +1,8 @@
+{
+	"BuildId": "25360045",
+	"Modules": 
+	{
+		"RadiationRoom": "UnrealEditor-RadiationRoom.dll",
+		"SpeechToText": "UnrealEditor-SpeechToText.dll"
+	}
+}
