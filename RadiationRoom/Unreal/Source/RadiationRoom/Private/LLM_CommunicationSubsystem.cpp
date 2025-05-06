@@ -53,13 +53,18 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         recv(llmSocket, reinterpret_cast<char*>(&msg_length), sizeof(msg_length), 0); // Recibir longitud
         char* buffer = new char[msg_length + 1];
         int32 iResult = recv(llmSocket, buffer, msg_length, 0); // Recibir mensaje
-        if (iResult == 0)  //En caso de no haber recibido nada
+        if (iResult == 0 || !buffer)  //En caso de no haber recibido nada
         {
             delete[] buffer;
             return; //No se hace broadcast porque no se ha recibido nada.
         }
         buffer[msg_length] = '\0';
 
+        if (!buffer)
+        {
+            delete[] buffer;
+            return; 
+        }
         _llmResponse = FString(buffer);
         //_llmResponse.Split("</think>\n\n", nullptr, &_llmResponse);
         delete[] buffer;
