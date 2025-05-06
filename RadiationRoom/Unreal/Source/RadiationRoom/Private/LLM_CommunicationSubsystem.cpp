@@ -61,11 +61,13 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         buffer[msg_length] = '\0';
 
         _llmResponse = FString(buffer);
-        _llmResponse.Split("</think>\n\n", nullptr, &_llmResponse);
+        //_llmResponse.Split("</think>\n\n", nullptr, &_llmResponse);
         delete[] buffer;
         OnLLMResponseReceived.Broadcast(_llmResponse);
         if (!promptPQueue.IsEmpty()) {
-            SendPrompt(promptPQueue.Pop().promptText);
+            FString content = promptPQueue[0].promptText;
+            promptPQueue.RemoveAt(0);
+            SendPrompt(content);
         }
         else {
             bPendingResponse = false;
@@ -76,10 +78,22 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
 void ULLM_CommunicationSubsystem::QueuePrompt(const FPromptInformation& prompt)
 {
     promptPQueue.Emplace(prompt);
+    FString content;
+    for (auto e : promptPQueue) {
+        content += FString::Printf(TEXT("%03d"), e.promptPriority);
+        content += " ";
+    }
+    GEngine->AddOnScreenDebugMessage(55, 10, FColor::Yellow, content);
     promptPQueue.Sort([](const FPromptInformation& p1, const FPromptInformation& p2)
         {
             return p1.promptPriority >= p2.promptPriority;
         });
+    content = "";
+    for (auto e : promptPQueue) {
+        content += FString::Printf(TEXT("%03d"), e.promptPriority);
+        content += " ";
+    }
+    GEngine->AddOnScreenDebugMessage(55, 10, FColor::Orange, content);
 }
 
 void ULLM_CommunicationSubsystem::SendPrompt(const FString& prompt)
