@@ -12,11 +12,6 @@
 
 #define RUN_IN_BACKGROUND_COMMAND "start /B " 
 
-USTT_CommunicationSubsystem::USTT_CommunicationSubsystem()
-{
-
-}
-
 void USTT_CommunicationSubsystem::SendMessageToSocket(FString message)
 {
     FTCHARToUTF8 utf_message(*message);
@@ -27,13 +22,6 @@ void USTT_CommunicationSubsystem::SendMessageToSocket(FString message)
     }
 }
 
-/*void USTT_CommunicationSubsystem::Tick(float DeltaTime)
-{
-    if (_transcriptionRecieved && bConnectionSuccesful) {
-        _transcriptionRecieved = false;
-        OnTranscriptionRecieved.Broadcast(_transcription);
-    }
-}*/
 
 void USTT_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
     Super::Initialize(Collection);
@@ -68,11 +56,11 @@ void USTT_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 void USTT_CommunicationSubsystem::Deinitialize() {
     Super::Deinitialize();
 
-    if (STTsocket != NULL) {
+    if (STTsocket != INVALID_SOCKET) {
         closesocket(STTsocket);
+        STTsocket = INVALID_SOCKET;
+        WSACleanup();
     }
-
-    WSACleanup();
 }
 
 void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
@@ -86,6 +74,9 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
             
             // Recibir longitud del mensaje enviado
             iResult = recv(STTsocket, reinterpret_cast<char*>(&msg_length), sizeof(msg_length), 0);
+            if (STTsocket == INVALID_SOCKET) {
+                return;
+            }
             if (iResult != SOCKET_ERROR) {
                 
                 if (iResult == 0) continue;
@@ -99,7 +90,6 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
                         buffer[msg_length] = '\0';
                         FString res = FString(buffer);
                         if (res == FString("_send_message_")) {
-                            // GetWorld()->GetGameInstance()->GetSubsystem<ULLM_CommunicationSubsystem>()->SendMessageW(_transcription, 1);
                             OnTranscriptionEnded.Broadcast(_transcription);
                             _transcription = FString();
                         }
@@ -110,7 +100,6 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
                         else {
                             _transcription = FString(buffer);
                             OnTranscriptionRecieved.Broadcast(_transcription);
-                            //_transcriptionRecieved = true;
                         }
                         
                     }
@@ -201,8 +190,3 @@ int32 USTT_CommunicationSubsystem::socketConnection()
     }
     return 0;
 }
-
-/*TStatId USTT_CommunicationSubsystem::GetStatId() const
-{
-    RETURN_QUICK_DECLARE_CYCLE_STAT(YouClassName, STATGROUP_Tickables);
-}*/

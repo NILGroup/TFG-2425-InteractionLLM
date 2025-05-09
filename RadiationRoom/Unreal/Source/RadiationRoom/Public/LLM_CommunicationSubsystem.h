@@ -36,7 +36,6 @@ class RADIATIONROOM_API ULLM_CommunicationSubsystem : public UGameInstanceSubsys
 {
 	GENERATED_BODY()
 public:
-	ULLM_CommunicationSubsystem();
 
 	UFUNCTION(BlueprintCallable)
 	void SendMessage(FString userMessage, int32 messagePriority = 1);

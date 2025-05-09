@@ -15,11 +15,6 @@
 
 #include "Misc/App.h"
 
-ULLM_CommunicationSubsystem::ULLM_CommunicationSubsystem()
-{
-
-}
-
 void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
@@ -42,8 +37,12 @@ void ULLM_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 
 void ULLM_CommunicationSubsystem::Deinitialize()
 {
-    closesocket(llmSocket);
-    WSACleanup();
+    Super::Deinitialize();
+    if (llmSocket != INVALID_SOCKET) {
+        closesocket(llmSocket);
+        llmSocket = INVALID_SOCKET;
+        WSACleanup();
+    }
 }
 
 void ULLM_CommunicationSubsystem::ShowLLMResponse()
@@ -51,6 +50,9 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
     AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this] {
         uint32_t msg_length;
         recv(llmSocket, reinterpret_cast<char*>(&msg_length), sizeof(msg_length), 0); // Recibir longitud
+        if (llmSocket == INVALID_SOCKET) {
+            return;
+        }
         char* buffer = new char[msg_length + 1];
         int32 iResult = recv(llmSocket, buffer, msg_length, 0); // Recibir mensaje
         if (iResult == 0 || !buffer)  //En caso de no haber recibido nada
@@ -60,11 +62,6 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
         }
         buffer[msg_length] = '\0';
 
-        if (!buffer)
-        {
-            delete[] buffer;
-            return; 
-        }
         _llmResponse = FString(buffer);
         delete[] buffer;
         OnLLMResponseReceived.Broadcast(_llmResponse);

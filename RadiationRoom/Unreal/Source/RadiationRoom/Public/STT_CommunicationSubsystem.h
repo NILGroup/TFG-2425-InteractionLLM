@@ -26,7 +26,6 @@ class RADIATIONROOM_API USTT_CommunicationSubsystem : public UGameInstanceSubsys
 {
 	GENERATED_BODY()
 public:
-	USTT_CommunicationSubsystem();
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTranscriptionRecieved OnTranscriptionRecieved;
@@ -36,8 +35,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SendMessageToSocket(FString message);
-
-	//virtual void Tick(float DeltaTime) override;
 
 protected:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -53,9 +50,6 @@ private:
 	int32 socketConnection();
 	bool bConnectionSuccesful = false;
 	
-	//TStatId GetStatId() const override;
-
-	//bool _transcriptionRecieved = false;
 	FString _transcription = "";
 
 	// Necesario para poder inicializar el uso del archivo DLL de Windows Sockets
