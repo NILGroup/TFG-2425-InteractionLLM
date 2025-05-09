@@ -19,5 +19,5 @@ public:
 	static TArray<FString> GetDirectoriesInDirectory(const FString& DirectoryPath);
 
 	UFUNCTION(BlueprintCallable)
-	static TMap<FString, TSoftObjectPtr<UStaticMesh>> GetMeshesInPath(const FString& DirectoryPath);
+	static TMap<FString, TSoftObjectPtr<UObject>> GetObjectsInPath(const FString& DirectoryPath);
 };

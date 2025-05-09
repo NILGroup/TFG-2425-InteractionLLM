@@ -18,7 +18,7 @@ TArray<FString> UBlueprintFunctionUtilities::GetDirectoriesInDirectory(const FSt
 	return files;
 }
 
-TMap<FString, TSoftObjectPtr<UStaticMesh>> UBlueprintFunctionUtilities::GetMeshesInPath(const FString& DirectoryPath)
+TMap<FString, TSoftObjectPtr<UObject>> UBlueprintFunctionUtilities::GetObjectsInPath(const FString& DirectoryPath)
 {
     TArray<FAssetData> AssetList;
     FARFilter Filter;
@@ -30,10 +30,12 @@ TMap<FString, TSoftObjectPtr<UStaticMesh>> UBlueprintFunctionUtilities::GetMeshe
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
     AssetRegistryModule.Get().GetAssets(Filter, AssetList);
 
-    TMap<FString, TSoftObjectPtr<UStaticMesh>> meshPaths;
+    TMap<FString, TSoftObjectPtr<UObject>> meshPaths;
     for (const FAssetData& AssetData : AssetList)
     {
         meshPaths.Emplace(AssetData.AssetName.ToString(), AssetData.ToSoftObjectPath());
     }
     return meshPaths;
 }
+
+
