@@ -111,17 +111,18 @@ void ULLM_CommunicationSubsystem::SendPrompt(const FString& prompt)
 int32 ULLM_CommunicationSubsystem::SystemCall(FString pythonCommand)
 {
     FString PythonScriptPath;
+    const ULLM_Settings* llmSettings = GetDefault<ULLM_Settings>();
+    scriptName = "/" + llmSettings->scriptName + ".py";
 #if WITH_EDITOR
-    PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/") + FApp::GetProjectName() + TEXT("/llmSocket.py"));
+    PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() + TEXT("Source/") + FApp::GetProjectName() + scriptName);
 #else
     //Búsqueda del script en la raíz del ejecutable
     FString dir = FPaths::ProjectDir();
     dir = dir.Left(dir.Len() - 1);
     int32 ret = dir.Find(FString("/"), ESearchCase::IgnoreCase, ESearchDir::FromEnd);
     dir = dir.Left(ret + 1);
-    PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(dir + TEXT("/llmSocket.py"));
+    PythonScriptPath = pythonCommand + FPaths::ConvertRelativePathToFull(dir + scriptName);
 #endif
-    const ULLM_Settings* llmSettings = GetDefault<ULLM_Settings>();
     PythonScriptPath += llmSettings->GetSettingsCommands();
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
     std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);

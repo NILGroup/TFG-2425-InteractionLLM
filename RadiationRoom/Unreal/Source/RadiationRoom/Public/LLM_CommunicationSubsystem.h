@@ -48,6 +48,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnLLMQuestionSendDelegate OnLLMQuestionSend;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "settings")
+	FString scriptName;
 protected:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
 

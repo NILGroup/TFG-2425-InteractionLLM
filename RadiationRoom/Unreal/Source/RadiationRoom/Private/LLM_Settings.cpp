@@ -4,6 +4,7 @@
 
 ULLM_Settings::ULLM_Settings()
 {
+	scriptName = "llmSocket";
 	FCommand exitCom; exitCom.CommandArgument = "exit_msg"; exitCom.CommandValue = "LLM_Quit";
 	LLM_Commands.Add(exitCom);
 	FCommand portCom; portCom.CommandArgument = "port"; portCom.CommandValue = "8080";

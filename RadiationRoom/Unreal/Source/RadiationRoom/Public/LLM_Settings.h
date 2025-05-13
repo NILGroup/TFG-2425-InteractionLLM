@@ -27,6 +27,9 @@ public:
 	ULLM_Settings();
 
 	UPROPERTY(Config, EditAnywhere, Category = "Commands", BlueprintReadOnly)
+	FString scriptName;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Commands", BlueprintReadOnly)
 	TArray<FCommand> LLM_Commands;
 
 	UFUNCTION(BlueprintCallable)
