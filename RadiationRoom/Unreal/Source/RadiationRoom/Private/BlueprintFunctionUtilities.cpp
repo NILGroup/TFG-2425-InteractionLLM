@@ -18,11 +18,11 @@ TArray<FString> UBlueprintFunctionUtilities::GetDirectoriesInDirectory(const FSt
 	return files;
 }
 
-TMap<FString, TSoftObjectPtr<UObject>> UBlueprintFunctionUtilities::GetObjectsInPath(const FString& DirectoryPath)
+TMap<FString, TSoftObjectPtr<UObject>> UBlueprintFunctionUtilities::GetObjectsInPath(const FString& DirectoryPath, const TSubclassOf<UObject> classToFind)
 {
     TArray<FAssetData> AssetList;
     FARFilter Filter;
-    Filter.ClassNames.Add(UStaticMesh::StaticClass()->GetFName());
+    Filter.ClassNames.Add(classToFind->StaticClass()->GetFName());
     FString dir = "/Game/" + DirectoryPath;
     Filter.PackagePaths.Add(*dir);
     Filter.bRecursivePaths = true;
@@ -30,12 +30,12 @@ TMap<FString, TSoftObjectPtr<UObject>> UBlueprintFunctionUtilities::GetObjectsIn
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
     AssetRegistryModule.Get().GetAssets(Filter, AssetList);
 
-    TMap<FString, TSoftObjectPtr<UObject>> meshPaths;
+    TMap<FString, TSoftObjectPtr<UObject>> objsPaths;
     for (const FAssetData& AssetData : AssetList)
     {
-        meshPaths.Emplace(AssetData.AssetName.ToString(), AssetData.ToSoftObjectPath());
+        objsPaths.Emplace(AssetData.AssetName.ToString(), AssetData.ToSoftObjectPath());
     }
-    return meshPaths;
+    return objsPaths;
 }
 
 
