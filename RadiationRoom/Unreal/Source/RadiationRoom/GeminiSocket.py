@@ -34,11 +34,7 @@ parser.add_argument('--exe_mode', action='store', dest='exe_mode', default='Debu
 parser.add_argument('--temperature', action='store', dest='temp')
 args = parser.parse_args()
 
-GOOGLE_API_KEY="AIzaSyDmQ4UFy_pEwOkQdnRALYM9h1CuHxSEMns"
-
-client = genai.Client(
-    api_key=GOOGLE_API_KEY
-)
+GOOGLE_API_KEY= ["AIzaSyDxdOi9O9-vJycGB8PaY_trfsUKdXx4hm0"]#, "AIzaSyA3G115LsekRUJolFI30WbhMhVeyOu1MEQ"]
 
 EXIT_MESSAGE = args.exit_msg
 PORT = DEFAULT_PORT
@@ -75,6 +71,8 @@ if(EXECUTION_MODE != "Release" and EXECUTION_MODE != "Debug"):
     EXECUTION_MODE = "Release"
 
 def OpenPort():
+    api_index = 0
+
     # Configurar historial para memoria
     history = []
     if(HISTORY_MAX_MEMORY <= 0): #Añadimos un elemento al historial donde se va a guardar la prompt del usuario en caso de no haber memoria
@@ -104,8 +102,10 @@ def OpenPort():
                         history[0]={'role': 'user', 'content': userMessage}
 
                     
+                    new_api_key = GOOGLE_API_KEY[api_index]
+
                     client = genai.Client(
-                        api_key=GOOGLE_API_KEY
+                        api_key=new_api_key
                     )                    
                     
                     response = client.models.generate_content(
@@ -113,10 +113,12 @@ def OpenPort():
                         contents=userMessage,
                         config= types.GenerateContentConfig(
                             response_mime_type= 'application/json',
-                            temperature= 0.5
+                            temperature= TEMPERATURE
                         )
                     )
-            
+
+                    api_index = (api_index + 1) % len(GOOGLE_API_KEY)
+
                     Print(response.text)
                     # Descomentar la sección para usar el modo "stream" a true
                     #for word in stream:
