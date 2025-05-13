@@ -45,11 +45,10 @@ void USTT_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
         bConnectionSuccesful = (ret == 0);
     }
     if (bConnectionSuccesful) {
-        GEngine->AddOnScreenDebugMessage(0, 10, FColor::Red, TEXT("Connection Succesful: YES"));
         RecieveTranscriptionsLoop();
     }
     else {
-        GEngine->AddOnScreenDebugMessage(0, 10, FColor::Red, TEXT("Connection Succesful: NO"));
+        GEngine->AddOnScreenDebugMessage(0, 10, FColor::Red, TEXT("STT Connection ERROR"));
     }
 }
 
