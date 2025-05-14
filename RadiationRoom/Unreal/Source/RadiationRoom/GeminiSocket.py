@@ -125,9 +125,13 @@ def OpenPort():
 
                         conn.sendall(pack)
                     except Exception as e:
-                        Print('\033[31mError:', e.error, '\033[0m')
                         api_index = (api_index + 1) % len(GOOGLE_API_KEY)
                         if api_index == start_index:
+                            Print('\033[31mError:', e.error, '\033[0m')
                             sent = True
+                            response = bytes('{ }', 'utf-8')
+                            pack = struct.pack("I%ds" % (len(response),), len(response), response)
+
+                            conn.sendall(pack)
 
 OpenPort()
