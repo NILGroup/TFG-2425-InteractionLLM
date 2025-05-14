@@ -34,7 +34,7 @@ parser.add_argument('--exe_mode', action='store', dest='exe_mode', default='Debu
 parser.add_argument('--temperature', action='store', dest='temp')
 args = parser.parse_args()
 
-GOOGLE_API_KEY= ["AIzaSyDxdOi9O9-vJycGB8PaY_trfsUKdXx4hm0"]#, "AIzaSyA3G115LsekRUJolFI30WbhMhVeyOu1MEQ"]
+GOOGLE_API_KEY= ["AIzaSyDxdOi9O9-vJycGB8PaY_trfsUKdXx4hm0", "AIzaSyBKufSB-1-EKh--ZtC92J_AVlN6QbUBOJ0", "AIzaSyA3G115LsekRUJolFI30WbhMhVeyOu1MEQ"]
 
 EXIT_MESSAGE = args.exit_msg
 PORT = DEFAULT_PORT
@@ -93,49 +93,41 @@ def OpenPort():
                 userMessage = conn.recv(msg_length)  # Leer el mensaje completo
                 userMessage =  userMessage.decode('utf-8')
                 Print("The user message is: " + userMessage)
-                #Parte del LLM
-                try:
-                    #El historial es para que el LLM tenga memoria, de momento es la forma que tenemos que funciona
-                    if(HISTORY_MAX_MEMORY > 0):
-                        history.append({'role': 'user', 'content': userMessage})
-                    else:
-                        history[0]={'role': 'user', 'content': userMessage}
 
-                    
-                    new_api_key = GOOGLE_API_KEY[api_index]
+                sent = False
+                start_index = api_index
+                while not sent:
+                    #Parte del LLM
+                    try:
+                        new_api_key = GOOGLE_API_KEY[api_index]
 
-                    client = genai.Client(
-                        api_key=new_api_key
-                    )                    
-                    
-                    response = client.models.generate_content(
-                        model='gemini-2.0-flash',
-                        contents=userMessage,
-                        config= types.GenerateContentConfig(
-                            response_mime_type= 'application/json',
-                            temperature= TEMPERATURE
+                        client = genai.Client(
+                            api_key=new_api_key
+                        )                    
+                        
+                        response = client.models.generate_content(
+                            model='gemini-2.0-flash',
+                            contents=userMessage,
+                            config= types.GenerateContentConfig(
+                                response_mime_type= 'application/json',
+                                temperature= TEMPERATURE
+                            )
                         )
-                    )
 
-                    api_index = (api_index + 1) % len(GOOGLE_API_KEY)
+                        api_index = (api_index + 1) % len(GOOGLE_API_KEY)
 
-                    Print(response.text)
-                    # Descomentar la sección para usar el modo "stream" a true
-                    #for word in stream:
-                    #    Print(word.message.content, end='', flush=True)
-                    #    response += word.message.content
+                        Print(response.text)
+                        
+                        sent = True
 
-                    response = bytes(response.text, 'utf-8')
-                    pack = struct.pack("I%ds" % (len(response),), len(response), response)
+                        response = bytes(response.text, 'utf-8')
+                        pack = struct.pack("I%ds" % (len(response),), len(response), response)
 
-                    conn.sendall(pack)
-                    if(HISTORY_MAX_MEMORY > 0):
-                        history.append({'role': 'assistant', 'content': response})
-                        history = history[-HISTORY_MAX_MEMORY*2:] #limitar el número de interacciones registradas en el historial
-                        #Se multiplica por 2 porque cada interacción del historial ocupa 2 posiciones de array: la prompt y la respuesta
-                except Exception as e:
-                    Print('\033[31mError:', e.error, '\033[0m')
-                    userMessage = EXIT_MESSAGE
-
+                        conn.sendall(pack)
+                    except Exception as e:
+                        Print('\033[31mError:', e.error, '\033[0m')
+                        api_index = (api_index + 1) % len(GOOGLE_API_KEY)
+                        if api_index == start_index:
+                            sent = True
 
 OpenPort()
