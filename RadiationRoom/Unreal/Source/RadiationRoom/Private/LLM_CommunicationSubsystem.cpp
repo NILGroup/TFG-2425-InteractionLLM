@@ -39,6 +39,16 @@ void ULLM_CommunicationSubsystem::Deinitialize()
 {
     Super::Deinitialize();
     if (llmSocket != INVALID_SOCKET) {
+        const ULLM_Settings* llmSettings = GetDefault<ULLM_Settings>();
+        FString value = llmSettings->GetArgumentValue("exit_msg");
+        if (!value.IsEmpty()) {
+            std::string message = std::string(TCHAR_TO_UTF8(*value));
+            uint32_t messageLen = message.length();
+            int32 iResult = send(llmSocket, reinterpret_cast<char*>(&messageLen), sizeof(messageLen), 0);
+            if (iResult != SOCKET_ERROR) {
+                iResult = send(llmSocket, message.c_str(), messageLen, 0); // Enviar mensaje de cierre
+            }
+        }
         closesocket(llmSocket);
         llmSocket = INVALID_SOCKET;
         WSACleanup();

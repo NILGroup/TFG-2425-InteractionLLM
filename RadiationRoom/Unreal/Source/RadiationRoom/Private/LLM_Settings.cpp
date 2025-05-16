@@ -30,6 +30,16 @@ const FString ULLM_Settings::GetSettingsCommands() const
 	return args;
 }
 
+const FString ULLM_Settings::GetArgumentValue(FString argName) const
+{
+	for (auto arg : LLM_Commands) {
+		if (arg.CommandArgument == argName) {
+			return arg.CommandValue;
+		}
+	}
+	return FString("");
+}
+
 const ULLM_Settings* ULLM_Settings::GetLLM_Settings()
 {
 	return GetDefault<ULLM_Settings>();

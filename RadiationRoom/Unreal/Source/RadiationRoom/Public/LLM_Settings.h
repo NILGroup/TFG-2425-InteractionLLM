@@ -36,5 +36,8 @@ public:
 	const FString GetSettingsCommands() const;
 
 	UFUNCTION(BlueprintCallable)
+	const FString GetArgumentValue(FString argName) const;
+
+	UFUNCTION(BlueprintCallable)
 	static const ULLM_Settings* GetLLM_Settings();
 };

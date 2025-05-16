@@ -56,6 +56,7 @@ void USTT_CommunicationSubsystem::Deinitialize() {
     Super::Deinitialize();
 
     if (STTsocket != INVALID_SOCKET) {
+        SendMessageToSocket("EXIT");
         closesocket(STTsocket);
         STTsocket = INVALID_SOCKET;
         WSACleanup();
@@ -67,7 +68,7 @@ void USTT_CommunicationSubsystem::RecieveTranscriptionsLoop()
     AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this] {
         
         int32 iResult = 0;
-        // con dos huevazos me hago un while(true)
+        
         while (iResult != SOCKET_ERROR) {
             uint32_t msg_length;
             
