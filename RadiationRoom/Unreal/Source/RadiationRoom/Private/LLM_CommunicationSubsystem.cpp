@@ -46,7 +46,7 @@ void ULLM_CommunicationSubsystem::Deinitialize()
             uint32_t messageLen = message.length();
             int32 iResult = send(llmSocket, reinterpret_cast<char*>(&messageLen), sizeof(messageLen), 0);
             if (iResult != SOCKET_ERROR) {
-                iResult = send(llmSocket, message.c_str(), messageLen, 0); // Enviar mensaje de cierre
+                iResult = send(llmSocket, message.c_str(), messageLen, 0); // Enviar mensaje de cierre, que cierra las consolas
             }
         }
         closesocket(llmSocket);
@@ -165,7 +165,7 @@ int32 ULLM_CommunicationSubsystem::socketConnection()
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    // Resolve the server address and port
+    // Resuelve la dirección y puerto
     int32 iResult = getaddrinfo(HOST, PORT, &hints, &result);
     if (iResult != 0) {
         UE_LOG(LogTemp, Error, TEXT("getaddrinfo failed"));

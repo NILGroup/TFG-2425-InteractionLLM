@@ -7,7 +7,6 @@ TMap<FString, TSoftObjectPtr<UObject>> UBlueprintFunctionUtilities::GetObjectsIn
 {
     TArray<FAssetData> AssetList;
     FARFilter Filter;
-    //Filter.ClassNames.Add(classToFind->StaticClass()->GetFName());
     FString dir = "/Game/" + DirectoryPath;
     Filter.PackagePaths.Add(*dir);
     Filter.bRecursivePaths = true;

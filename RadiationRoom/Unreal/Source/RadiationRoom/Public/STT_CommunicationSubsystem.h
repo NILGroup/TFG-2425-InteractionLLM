@@ -1,22 +1,22 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 
-//contiene la mayor�a de las funciones, estructuras y definiciones de Winsock.
+//contiene la mayoría de las funciones, estructuras y definiciones de Winsock.
 #include <winsock2.h>
-//contiene definiciones introducidas en el documento anexo de WinSock 2 Protocol-Specific para TCP/IP que incluye funciones y estructuras m�s recientes que se usan para recuperar direcciones IP.
+//contiene definiciones introducidas en el documento anexo de WinSock 2 Protocol-Specific para TCP/IP que incluye funciones y estructuras más recientes que se usan para recuperar direcciones IP.
 #include <ws2tcpip.h>
 #include <stdio.h>
-// Aseg�rese de que el entorno de compilaci�n se vincula al archivo de biblioteca winsock Ws2_32.lib (Comentario de la gu�a oficial de c�mo usar WinSock)
+// Asegúrese de que el entorno de compilación se vincula al archivo de biblioteca winsock Ws2_32.lib (Comentario de la guía oficial de cómo usar WinSock)
 #pragma comment(lib, "Ws2_32.lib")
 
 #include "STT_CommunicationSubsystem.generated.h"
 
-/**
- * 
+/*
+ * Esta clase permite conectar el motor de Unreal LLM encargado del Speech to Text (STT)
  */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTranscriptionRecieved, const FString&, Response);
@@ -26,13 +26,22 @@ class RADIATIONROOM_API USTT_CommunicationSubsystem : public UGameInstanceSubsys
 {
 	GENERATED_BODY()
 public:
-
+	/// <summary>
+	/// Event dispatcher que notifica de la llegada de una nueva transcripción del LLM
+	/// </summary>
 	UPROPERTY(BlueprintAssignable)
 	FOnTranscriptionRecieved OnTranscriptionRecieved;
 
+	/// <summary>
+	/// Event dispatcher que notifica el final de una transcripción
+	/// </summary>
 	UPROPERTY(BlueprintAssignable)
 	FOnTranscriptionEnded OnTranscriptionEnded;
 	
+	/// <summary>
+	/// Permite enviar un mensaje al LLM mediante puertos
+	/// </summary>
+	/// <param name="message">Mensaje que se quiere enviar</param>
 	UFUNCTION(BlueprintCallable)
 	void SendMessageToSocket(FString message);
 
@@ -41,10 +50,15 @@ protected:
 
 	void Deinitialize() override;
 
+	/// <summary>
+	/// Bucle de la clase que se encarga de esperar nuevos mensajes y reenviarlos al modelo
+	/// </summary>
 	void RecieveTranscriptionsLoop();
-
-
 private:
+
+	/*
+	* Métodos y par�metros necesarios para la inicialización y conexión por puertos
+	*/
 	int32 SystemCall(FString pythonCommand);
 	int32 winSockInitialization();
 	int32 socketConnection();

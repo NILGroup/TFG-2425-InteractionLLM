@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -18,6 +18,9 @@ struct FCommand
 	FString CommandValue = TEXT("");
 };
 
+/*
+* Clase que contiene los ajustes del proyecto que se quieran aplicar durante la ejecución del script del LLM
+*/
 UCLASS(config = Game, defaultconfig, meta = (DisplayName = "LLM Settings"))
 class RADIATIONROOM_API ULLM_Settings : public UDeveloperSettings
 {
