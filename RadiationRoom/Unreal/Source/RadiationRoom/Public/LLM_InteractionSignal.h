@@ -17,8 +17,7 @@ struct FSignalAnswer {
 	TArray<AActor*> affectedActors;
 };
 /**
- * Clase padre utilizada para la creación de señales hijas.
- * Sirve como "interfaz" para que se implemente la lógica en clases Blueprint derivadas
+ * 
  */
 UCLASS(BlueprintType, Blueprintable)
 class RADIATIONROOM_API ULLM_InteractionSignal : public UObject
@@ -28,29 +27,15 @@ class RADIATIONROOM_API ULLM_InteractionSignal : public UObject
 public:
 	ULLM_InteractionSignal();
 
-	/// <summary>
-	/// Sobreescribir este método permite hacer uso de funciones exclusivas de actores con presencia en el mundo, como por ejemplo, realizar raycasts
-	/// </summary>
-	/// <returns>Devuelve el mundo en el que se encuentra el objeto</returns>
 	UFUNCTION(BlueprintCallable)
 	UWorld* GetWorld() const override;
 
-	/// <summary>
-	/// Evento de ejecución de la señal, 
-	/// </summary>
-	/// <returns>True en caso de que se haya podido ejecutar, falso en caso contrario</returns>
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Functions")
 	bool ExecuteSignal();
 
-	/// <summary>
-	/// Evento que genera el prompt correspondiente, solo se ejecutará este evento si el intento de ejecución ha sido positivo
-	/// </summary>
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Functions")
 	FSignalAnswer GetSignalPrompt();
 protected:
-	/*
-	* Parámetros necesarios para describir a la señal
-	*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (AllowPrivateAccess = "true"))
 	FString name;

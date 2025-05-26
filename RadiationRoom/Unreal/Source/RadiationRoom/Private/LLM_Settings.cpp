@@ -4,7 +4,6 @@
 
 ULLM_Settings::ULLM_Settings()
 {
-	//Los ajustes por defecto permiten ejecutar el script de LLM local, priorizando el rendimiento
 	scriptName = "llmSocket";
 	FCommand exitCom; exitCom.CommandArgument = "exit_msg"; exitCom.CommandValue = "LLM_Quit";
 	LLM_Commands.Add(exitCom);

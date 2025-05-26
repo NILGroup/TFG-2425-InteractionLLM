@@ -37,6 +37,7 @@ void USTT_CommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
     bConnectionSuccesful = (ret == 0);
     if (!bConnectionSuccesful) return;
     
+    // Esto hay que cambiarlo por una pantalla de carga hasta que se conecte el socket.
     ret = socketConnection();
     bConnectionSuccesful = (ret == 0);
     while (!bConnectionSuccesful) {

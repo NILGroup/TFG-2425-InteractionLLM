@@ -7,7 +7,7 @@
 #include "BlueprintFunctionUtilities.generated.h"
 
 /**
- * Clase encargada de ofrecer las funciones que faciliten el desarrollo 
+ * 
  */
 UCLASS()
 class RADIATIONROOM_API UBlueprintFunctionUtilities : public UBlueprintFunctionLibrary
@@ -15,11 +15,9 @@ class RADIATIONROOM_API UBlueprintFunctionUtilities : public UBlueprintFunctionL
 	GENERATED_BODY()
 	
 public:
-	/// <summary>
-	/// Este método, permite obtener todos los recursos dada un directorio concreto
-	/// </summary>
-	/// <param name="DirectoryPath">Directorio donde se quiere buscar</param>
-	/// <returns>Mapa que contiene los nombres de los recursos y referencias a los mismos</returns>
+	UFUNCTION(BlueprintCallable)
+	static TArray<FString> GetDirectoriesInDirectory(const FString& DirectoryPath);
+
 	UFUNCTION(BlueprintCallable)
 	static TMap<FString, TSoftObjectPtr<UObject>> GetObjectsInPath(const FString& DirectoryPath);
 };
