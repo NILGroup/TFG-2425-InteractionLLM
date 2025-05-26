@@ -15,7 +15,6 @@ DEFAULT_PORT = 7070
 PORT = DEFAULT_PORT
 HOST_IP = "127.0.0.1"
 
-# The last time a recording was retrieved from the queue.
 
 async def OpenPort():
     global record_flag
@@ -24,7 +23,7 @@ async def OpenPort():
     global exit_flag
     exit_flag = False
 
-    # Thread safe Queue for passing data from the threaded recording callback.
+    # Cola segura para pasar datos desde la grabación asíncrona
     global data_queue
     data_queue = Queue()
 
@@ -53,15 +52,14 @@ async def OpenPort():
         transcription = ['']
         phrase_time = datetime.now(timezone.utc)
 
-        # load model
+        # Carga del modelo
         audio_model = whisper.load_model("base.en")
-        phrase_timeout = 3 #args.phrase_timeout
+        phrase_timeout = 3
         record_timeout = 3
 
-        # We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
+        # Se utiliza SpeechRecognizer para grabar el audio porque incluye funcionalidad para detectar cuando termina el diálogo
         recorder = sr.Recognizer()
-        recorder.energy_threshold = 1000 # args.energy_threshold
-        # Definitely do this, dynamic energy compensation lowers the energy threshold dramatically to a point where the SpeechRecognizer never stops recording.
+        recorder.energy_threshold = 1000
         recorder.dynamic_energy_threshold = False
 
         loop = asyncio.get_running_loop()
@@ -102,16 +100,14 @@ async def OpenPort():
             Threaded callback function to receive audio data when recordings finish.
             audio: An AudioData containing the recorded bytes.
             """
-            # Grab the raw bytes and push it into the thread safe queue.
             data = audio.get_raw_data()
             data_queue.put(data)
 
-        # Create a background thread that will pass us raw audio bytes.
-        # We could do this manually but SpeechRecognizer provides a nice helper.
+        # Se crea un hilo que permite pasar los bytes del audio
         global background_recording_task
         background_recording_task = None
         
-        # Cue the user that we're ready to go.
+        # Informa al usuario de que el modelo está listo para escuchar
         print("Model loaded.\n")
 
         local_record = False
@@ -127,36 +123,27 @@ async def OpenPort():
                 local_record = False
                 background_recording_task(True)
 
-            # Pull raw recorded audio from the queue.
-            if not data_queue.empty(): # and record_voice:
-                # This is the last time we received new audio data from the queue.
+            if not data_queue.empty(): 
                 phrase_time = now
                 
                 response = bytes()
                 
-                # Combine audio data from queue
                 audio_data = b''.join(data_queue.queue)
                 data_queue.queue.clear()
                 
-                # Convert in-ram buffer to something the model can use directly without needing a temp file.
-                # Convert data from 16 bit wide integers to floating point with a width of 32 bits.
-                # Clamp the audio stream frequency to a PCM wavelength compatible default of 32768hz max.
                 audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
 
-                # Read the transcription.
                 result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
                 transcription.append(text)
 
-                # Clear the console to reprint the updated transcription.
                 os.system('cls' if os.name=='nt' else 'clear')
                 for line in transcription:
                     if line != '':
                         print(line)
                         response = response + bytes(line, 'utf-8')
 
-                # Flush stdout.
                 print('', end='', flush=True)
 
                 pack = struct.pack("I%ds" % (len(response),), len(response), response)
@@ -196,7 +183,7 @@ async def OpenPort():
                 data = await loop.sock_recv(client, 5)
                 if not data:
                     print("No data received, closing connection")
-                    break  # Exit the loop if the connection is closed or no data is received
+                    break  # Sale del bucle si no se recibe información
 
                 data = data.decode('utf8')
                 print(f"Received data: {data}")

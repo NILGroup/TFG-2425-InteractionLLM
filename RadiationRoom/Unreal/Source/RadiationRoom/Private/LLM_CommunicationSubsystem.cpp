@@ -7,11 +7,8 @@
 #define HOST "127.0.0.1"
 #define WINSOCK_DEPRECATED_NO_WARNINGS
 
-#ifdef _WIN32
+//Este prefijo solo se puede usar en sistemas operativos Windows
 #define RUN_IN_BACKGROUND_COMMAND "start /B " 
-#else
-#define RUN_IN_BACKGROUND_COMMAND "nohup " //Por si queremos compilar para sistemas Unix
-#endif
 
 #include "Misc/App.h"
 
@@ -46,7 +43,7 @@ void ULLM_CommunicationSubsystem::Deinitialize()
             uint32_t messageLen = message.length();
             int32 iResult = send(llmSocket, reinterpret_cast<char*>(&messageLen), sizeof(messageLen), 0);
             if (iResult != SOCKET_ERROR) {
-                iResult = send(llmSocket, message.c_str(), messageLen, 0); // Enviar mensaje de cierre
+                iResult = send(llmSocket, message.c_str(), messageLen, 0); // Enviar mensaje de cierre para cerrar la consola asociada
             }
         }
         closesocket(llmSocket);
@@ -89,7 +86,7 @@ void ULLM_CommunicationSubsystem::ShowLLMResponse()
 void ULLM_CommunicationSubsystem::QueuePrompt(const FPromptInformation& prompt)
 {
     promptPQueue.Emplace(prompt);
-    promptPQueue.Sort([](const FPromptInformation& p1, const FPromptInformation& p2)
+    promptPQueue.Sort([](const FPromptInformation& p1, const FPromptInformation& p2) //Ordenación de la cola por prioridad
         {
             return p1.promptPriority >= p2.promptPriority;
         });
@@ -136,8 +133,6 @@ int32 ULLM_CommunicationSubsystem::SystemCall(FString pythonCommand)
     PythonScriptPath += llmSettings->GetSettingsCommands();
     PythonScriptPath = TEXT(RUN_IN_BACKGROUND_COMMAND) + PythonScriptPath;
     std::string ScriptAnsi = TCHAR_TO_UTF8(*PythonScriptPath);
-    //return WinExec(ScriptAnsi.c_str(), SW_SHOW);
-    
     return system(ScriptAnsi.c_str());
 }
 
@@ -165,7 +160,7 @@ int32 ULLM_CommunicationSubsystem::socketConnection()
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    // Resolve the server address and port
+    // Resuelve la dirección y puerto
     int32 iResult = getaddrinfo(HOST, PORT, &hints, &result);
     if (iResult != 0) {
         UE_LOG(LogTemp, Error, TEXT("getaddrinfo failed"));
