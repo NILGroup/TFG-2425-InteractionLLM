@@ -15,8 +15,6 @@ class RADIATIONROOM_API UBlueprintFunctionUtilities : public UBlueprintFunctionL
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable)
-	static TArray<FString> GetDirectoriesInDirectory(const FString& DirectoryPath);
 
 	UFUNCTION(BlueprintCallable)
 	static TMap<FString, TSoftObjectPtr<UObject>> GetObjectsInPath(const FString& DirectoryPath);
