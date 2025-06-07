@@ -35,7 +35,8 @@ parser.add_argument('--temperature', action='store', dest='temp')
 args = parser.parse_args()
 
 # Lista de claves privadas que permite un mayor margen antes de alcanzar la cantidad máxima de peticiones
-GOOGLE_API_KEY= ["AIzaSyDxdOi9O9-vJycGB8PaY_trfsUKdXx4hm0", "AIzaSyBKufSB-1-EKh--ZtC92J_AVlN6QbUBOJ0", "AIzaSyA3G115LsekRUJolFI30WbhMhVeyOu1MEQ", "AIzaSyCbYA8dSFjb8j4dZZFXKWZA6tAUP24fc6k"]
+# Insertar las claves de Gemini en esta lista
+GOOGLE_API_KEY= []
 
 EXIT_MESSAGE = args.exit_msg
 PORT = DEFAULT_PORT
